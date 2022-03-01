@@ -1169,7 +1169,7 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
 
 def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
     #if called after rebin, the overflow bin is 0 already, and do we include underflow bin?
-    #rebin was not called for histograms in hUnfolded, so use nbins+1 
+    #rebin was not called for histograms in hUnfolded, so use nbins+1 -> but there shouldn't be overflow bin content for unfolded hist.
     nominalArea = hDict[''].Integral(1,hDict[''].GetNbinsX()+1) #original codes start with 0th bin.
     hn = hDict[''].Clone()
     if norm:
@@ -1217,13 +1217,13 @@ def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
     avghist = None
     firstadd = True
     
-    #calculate avg hist for pdf variations MC replica case, not needed currently
+    #calculate avg hist for pdf variations MC replica case, used for 2016 replicas error
     for sys, h in hDict.iteritems():
         if not sys:
             continue
         he = h.Clone()
         if norm: #divide by nominal area for pdf variations (not QCD scale or alpha_s)
-            he.Scale(1.0/nominalArea) #/(he.Integral(1,he.GetNbinsX()+1)))
+            he.Scale(1.0/(he.Integral(1,he.GetNbinsX()+1)))
             #he.Scale(nominalArea/(he.Integral(0,he.GetNbinsX()+1)))
 
         if sys in pdf_strs:  #not ('111' in sys or '110' in sys or sys.replace('PS_','') in scaleindlist):
@@ -1307,10 +1307,15 @@ def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
 
         elif sys in pdf_strs:#not ('111' in sys or '110' in sys or sys.replace('PS_','') in scaleindlist): #last two correspond to alpha_s variation
             if not norm:
-                #he.Add(avghist,-1)
-                he.Add(hDict[''],-1)
+                if year=='2016':
+                    he.Add(avghist,-1) #avghist is already normalized or not normalized according to norm
+                else:
+                    he.Add(hDict[''],-1)
             else:
-                he.Add(hn,-1)
+                if year=='2016':
+                    he.Add(avghist,-1)
+                else:
+                    he.Add(hn,-1)
 
         sysName = sys.replace('_Up','').replace('_Down','') #used for systematics other than the added scale/pdf and jet systs
         sysName2 = sys.replace('_up','').replace('_dn','')#should only work for "jes_up","jes_dn","jer_up","jer_dn"
@@ -1407,7 +1412,7 @@ def _sumUncertainties(errDict,varName):
     return hUncUp, hUncDn
 
 def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above but used to printout info
-    
+    year = analysis[4:]
     systSum = {}
     ferrinfo=open("ErrorInfo_%s%s.log"%(varName,chan),'w')
     ferrinfo.write("Var: %s \n"%varName)
@@ -1491,8 +1496,9 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
                     systSum[sysList[j]]['Down'] += abs(h2.GetBinContent(i))*extraNfac
             else: #already satify in generateUncertainties#if not ('111' in sys or '110' in sys or sys.replace('PS_','') in scaleindlist):
                 PS_sum += h1.GetBinContent(i)**2 
-
-        #PS_sum = PS_sum/(100-1)
+        
+        if year=='2016':
+            PS_sum = PS_sum/(100.-1.) # for MC replicas
         totUncUp += PS_sum
         totUncDn += PS_sum
         totUncUp = math.sqrt(totUncUp)
