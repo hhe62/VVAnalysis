@@ -93,7 +93,7 @@ manager_path = ConfigureJobs.getManagerPath()
 selection = args['selection']
 if selection == "":
     selection = "LooseLeptons"
-    print "Info: Using BasicZZSelections for hist defintions"
+    #commented_print "Info: Using BasicZZSelections for hist defintions"
 #analysis = "/".join([args['analysis'], selection])
 analysis=args['analysis']
 _binning = {
@@ -312,7 +312,7 @@ def generateResponseClass(varName, channel,sigSamples,sigSamplesPath,sumW,hPUWt,
     
     #for example C=<class 'ROOT.BranchValueResponseMatrixMaker<float>'>     
     C = getattr(ROOT, className)
-    print("className:",C)
+    #commented_print("className:",C)
     
     #filelist=["zz4l-powheg"]
     filelist=[str(i) for i in sigSamples.keys()] 
@@ -340,7 +340,7 @@ def generateResponseClass(varName, channel,sigSamples,sigSamplesPath,sumW,hPUWt,
         for b in binning:
             vBinning.push_back(b)
 
-    print("Content of the ROOT vector object: {}".format([x for x in vBinning]))
+    #commented_print("Content of the ROOT vector object: {}".format([x for x in vBinning]))
     #print("vBinning: ",vBinning)
     responseMakers = {}
     #for sample, file_path in sigFileNames.items():
@@ -449,7 +449,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     hResponseNominalTotal = hResponseNominal.pop(mynominalName)
     #print "hRespNominalTotal: ",hResponseNominalTotal
     #This gets us the response matrix as a TH2D for "zz4l-powheg"
-    print "This hResponse is full of leaks here"
+    #commented_print "This hResponse is full of leaks here"
     hResponse = hResponseNominalTotal.getResponse('nominal').Clone()
     hResponse.SetDirectory(0)
     #ROOT.SetOwnership(hResponse,False)
@@ -459,13 +459,13 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     #Looping over the values of the dictionary (it doesn't have powheg anymore)
     #print "hResponseNominal after zz-pohwheg:",hResponseNominal
     for response in hResponseNominal.values():
-        print "Is the leak here"
-        print "response: ",response
+        #commented_print "Is the leak here"
+        #commented_print "response: ",response
         respMat = response.getResponse('nominal').Clone()
         #ROOT.SetOwnership(respMat,False)
         hResponse.Add(respMat)
         respMat.SetDirectory(0)
-        print "Is the leak where"
+        #commented_print "Is the leak where"
         #ROOT.SetOwnership(respMat,False)  
         del respMat
         #respMat.Delete()
@@ -524,7 +524,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     xaxisSize = hSigNominal.GetXaxis().GetTitleSize()
     yaxisSize = hTrue.GetXaxis().GetTitleSize()
     #print "xaxisSize: ",xaxisSize
-    print "trueHist: ",hTrue,", ",hTrue.Integral()
+    #commented_print "trueHist: ",hTrue,", ",hTrue.Integral()
     #print "TotBkgHist after rebinning: ",hBkgTotal,", ",hBkgTotal.Integral()
     hTruth['']=hTrue
 
@@ -729,7 +729,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         
         hResponsePU = {s:resp for s,resp in responseMakers.items()}
         hRespPUTot = hResponsePU.pop(mynominalName)
-        print "No errors in PU chain?"
+        #commented_print "No errors in PU chain?"
         # PU reweight uncertainty
         for sys in ['Up','Down']:
             hRespPU = hRespPUTot.getResponse('pu_'+sys)
@@ -918,7 +918,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         for lep in set(chan):
             hResponseSyst = {s:resp for s,resp in responseMakers.items()}
             hRespSystTot = hResponseSyst.pop(mynominalName)
-            print "No errors in systematics chain?"
+            #commented_print "No errors in systematics chain?"
             for sys in ['Up','Down']:
                 hRespSyst = hRespSystTot.getResponse(lep+'Eff_'+sys)
                 hRespSyst.SetDirectory(0)
@@ -1007,7 +1007,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     hAltSigNominal=rebin(hAltSigNominal,varName)
     hAltTrue=rebin(hAltTrue,varName)
 
-    print "AltTrueHist: ",hAltTrue,", ",hAltTrue.Integral()
+    #commented_print "AltTrueHist: ",hAltTrue,", ",hAltTrue.Integral()
     
     hTrueAlt['']=hAltTrue
     #if chan=='mmmm':
@@ -1020,11 +1020,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     
     for h in hUnfolded.values()+hTruth.values()+hTrueAlt.values():
         ROOT.SetOwnership(h,False)
-        print("histos: ",h)
-        print ("hTruthOut of Unfold: ",h.Integral())
+        #commented_print("histos: ",h)
+        #commented_print ("hTruthOut of Unfold: ",h.Integral())
         #h.SetDirectory(0)
-    print "hUnfolded (inside unfold): ",hUnfolded
-    print "hTrueAlt (inside unfold): ",hTrueAlt
+    #commented_print "hUnfolded (inside unfold): ",hUnfolded
+    #commented_print "hTrueAlt (inside unfold): ",hTrueAlt
     return hUnfolded,hTruth,hTrueAlt,hData
 
 #rebin histos and take care of overflow bins
@@ -1049,8 +1049,8 @@ def rebin(hist,varName):
 def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False):
     Response = getattr(ROOT,"RooUnfoldResponse")
 
-    print "TrueBeforeResponse: ", hTrue,", ",hTrue.Integral()
-    print "SigBeforeResponse: ", hSig,", ",hSig.Integral()
+    #commented_print "TrueBeforeResponse: ", hTrue,", ",hTrue.Integral()
+    #commented_print "SigBeforeResponse: ", hSig,", ",hSig.Integral()
     response = Response(hSig, hTrue.Clone(), hResponse.Clone()) 
     ROOT.SetOwnership(response,False)
     ROOT.SetOwnership(hData,False)
@@ -1073,16 +1073,16 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
             condition = float('inf')
             raise
 
-        print "channel: ",chan
-        print "variable: ",varNames[varName]
-        print "hResp out of response: ",hResp
-        print ''
-        print 'condition: {}'.format(condition)
-        print ''
+        #commented_print "channel: ",chan
+        #commented_print "variable: ",varNames[varName]
+        #commented_print "hResp out of response: ",hResp
+        #commented_print ''
+        #commented_print 'condition: {}'.format(condition)
+        #commented_print ''
 
     except:
-        print "It broke! Printing debug info"
-        print "Sig: {}, bkg: {}, true: {}, response: {}".format(hSig.Integral(), hBkg.Integral(), hTrue.Integral(), hResponse.Integral())
+        #commented_print "It broke! #commented_printing debug info"
+        #commented_print "Sig: {}, bkg: {}, true: {}, response: {}".format(hSig.Integral(), hBkg.Integral(), hTrue.Integral(), hResponse.Integral())
         c = ROOT.TCanvas("c1","canvas",800,800)
         hSig.Draw()
         style.setCMSStyle(c, '', dataType='Debug', intLumi=35900.)
@@ -1103,27 +1103,27 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
         c.Print("DebugPlots/resp{}.root".format(_printCounter))
         _printCounter += 1
 
-    print "hData: ", hData.Integral()
+    #commented_print "hData: ", hData.Integral()
     hDataMinusBkg = hData.Clone()
     hDataMinusBkg.Reset()
-    print "hBkg: ", hBkg.Integral()
+    #commented_print "hBkg: ", hBkg.Integral()
     hDataMinusBkg.Add(hData,1)
     hDataMinusBkg.Add(hBkg,-1)
     #hDataMinusBkg.Add(hBkg,-1)
     #HistTools.zeroNegativeBins(hDataMinusBkg)
-    print "DataMinusbkgIntegral: ",hDataMinusBkg, ", ",hDataMinusBkg.Integral()
+    #commented_print "DataMinusbkgIntegral: ",hDataMinusBkg, ", ",hDataMinusBkg.Integral()
     #Unfolding using 4 iterations and then stopping
     #if varNames[varName] not in ["Z1Mass","Z2Mass"]:
     #    nIter=8
     #print "No.of iterations: ",nIter
-    print "response: ",response
+    #commented_print "response: ",response
 
     #Simply inverting the matrix
     unf = RooUnfoldInv(response, hDataMinusBkg)
     unf3 = RooUnfoldBayes(response, hDataMinusBkg,4)
     #unf3 = RooUnfoldBayes(response, hSig,4)
     #unf = RooUnfoldIter(response, hDataMinusBkg, nIter)
-    print "unf: ",unf 
+    #commented_print "unf: ",unf 
 
     #Unfolds using the method of correction factors
     #unf = RooUnfoldBinbyBin(response, hSig)
@@ -1134,11 +1134,11 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
     hOut3=unf3.Hreco()
     #ROOT.SetOwnership(hOut,False)
     if not hOut:
-        print hOut
+        #commented_print hOut
         raise ValueError("The unfolded histogram got screwed up somehow!")
-    print("hOut: ",hOut,"",hOut.Integral())
-    print("Check first bin simple:",hOut.GetBinContent(1))
-    print("Check first bin reg:",hOut.GetBinContent(1))
+    #commented_print("hOut: ",hOut,"",hOut.Integral())
+    #commented_print("Check first bin simple:",hOut.GetBinContent(1))
+    #commented_print("Check first bin reg:",hOut.GetBinContent(1))
     #Returns covariance matrices for error calculation of type withError
     #0: Errors are the square root of the bin content
     #1: Errors from the diagonals of the covariance matrix given by the unfolding
@@ -1320,7 +1320,7 @@ def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
         sysName = sys.replace('_Up','').replace('_Down','') #used for systematics other than the added scale/pdf and jet systs
         sysName2 = sys.replace('_up','').replace('_dn','')#should only work for "jes_up","jes_dn","jer_up","jer_dn"
         #if sys=="generator":
-        print "Unc after nominal subtraction: ",he.Integral()
+        #commented_print "Unc after nominal subtraction: ",he.Integral()
         if '_Up' in sys:
             hErr['Up'][sysName] = he
         elif '_Down' in sys:
@@ -1383,8 +1383,8 @@ def _sumUncertainties(errDict,varName):
     totUncUp=totUncDn=0.
     UncUpHistos= [errDict['Up'][sys] for sys in sysList]
     UncDnHistos= [errDict['Down'][sys] for sys in sysList]
-    print "UncUpHistos: ",UncUpHistos
-    print "UncDnHistos: ",UncDnHistos
+    #commented_print "UncUpHistos: ",UncUpHistos
+    #commented_print "UncDnHistos: ",UncDnHistos
     for i,sys in enumerate(sysList):
         print "systematic: ",sys
         print "UncUp: ",UncUpHistos[i].Integral()
@@ -1406,8 +1406,8 @@ def _sumUncertainties(errDict,varName):
         #print "totUncDn: ",totUncDn
         hUncUp.SetBinContent(i,totUncUp)
         hUncDn.SetBinContent(i,totUncDn)
-    print("hUncUp: ",hUncUp,"",hUncUp.Integral()) 
-    print("hUncDown: ",hUncDn,"",hUncDn.Integral())
+    #commented_print("hUncUp: ",hUncUp,"",hUncUp.Integral()) 
+    #commented_print("hUncDown: ",hUncDn,"",hUncDn.Integral())
 
     return hUncUp, hUncDn
 
@@ -1452,22 +1452,25 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
             systSum[key]['Down'] = 0.
 
     #pdb.set_trace()
-    print "sysList: ",sysList
+    print("Current variable:%s"%varName)
+    print("Current sysList: ",sysList)
     #print "hUncUp: ",hUncUp,"",hUncUp.Integral()
     #print "hUncDown: ",hUncDn,"",hUncDn.Integral()
     totUncUp=totUncDn=0.
     UncUpHistos= [errDict['Up'][sys] for sys in sysList]
     UncDnHistos= [errDict['Down'][sys] for sys in sysList]
-    print "UncUpHistos: ",UncUpHistos
-    print "UncDnHistos: ",UncDnHistos
+    #print "UncUpHistos: ",UncUpHistos
+    #print "UncDnHistos: ",UncDnHistos
+    print("Current Unf: ",[hUnf.GetBinContent(x) for x in range(1,hUnf.GetNbinsX()+1)])
+    print("Current stat error: ",[hUnf.GetBinError(x) for x in range(1,hUnf.GetNbinsX()+1)])
     for i,sys in enumerate(sysList):
-        print "systematic: ",sys
-        print "UncUp: ",UncUpHistos[i].Integral()
-        print "UncDn: ",UncDnHistos[i].Integral()
+        print("Current systematic: ",sys)
+        print("Current UncUp: ",[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)])
+        print("Current UncDn: ",[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)])
     LumiUp = errDict['Up']['generator'] #lumi ->generator??
     LumiDn = errDict['Down']['generator']
-    print "GeneratorUp: ",LumiUp.Integral()
-    print "GeneratorDn: ",LumiDn.Integral()
+    #print "GeneratorUp: ",LumiUp.Integral()
+    #print "GeneratorDn: ",LumiDn.Integral()
     
     for i in range(1,hUncUp.GetNbinsX()+1):
         if norm:# divided by normalized height in that bin to get the portion of shape change, then weighted by bin width for averaging
@@ -1529,8 +1532,8 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
         
         hUncUp.SetBinContent(i,totUncUp*tmparea)
         hUncDn.SetBinContent(i,totUncDn*tmparea)
-    print("hUncUp: ",hUncUp,"",hUncUp.Integral()) 
-    print("hUncDown: ",hUncDn,"",hUncDn.Integral())
+    #commented_print("hUncUp: ",hUncUp,"",hUncUp.Integral()) 
+    #commented_print("hUncDown: ",hUncDn,"",hUncDn.Integral())
 
     ferrinfo.write("======================\n")
     ferrinfo.write("Error Summary \n")
@@ -1588,7 +1591,7 @@ def _combineChannelUncertainties(*errDicts):
         for sys in ['Up','Down']:
             uncList += errDict[sys].keys()
     uncList = set(uncList)
-    print "uncList:",uncList
+    #commented_print "uncList:",uncList
     for sys in ['Up','Down']:
         hUncTot[sys] = {}
         for unc in uncList:
