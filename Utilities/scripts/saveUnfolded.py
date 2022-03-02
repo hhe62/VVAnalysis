@@ -1452,6 +1452,7 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
             systSum[key]['Down'] = 0.
 
     #pdb.set_trace()
+    print("Current channel:%s"%chan)
     print("Current variable:%s"%varName)
     print("Current sysList: ",sysList)
     #print "hUncUp: ",hUncUp,"",hUncUp.Integral()
@@ -1574,10 +1575,15 @@ def sumUnfoldDict(*hUnfoldeds):
         histTot=ROOT.TH1D("histTotUnfolded","Tot hist",len(histbins)-1,histbins)
         ROOT.SetOwnership(histTot,False)
         hUnfoldedtot[key] = histTot.Clone() 
+
+        print("Unc type before norm:%s"%key)
+        
     
-        for dic in hUnfoldeds:
+        for i,dic in enumerate(hUnfoldeds):
             try:
                 hUnfoldedtot[key].Add(dic[key])
+                print("Bin content before norm for channel %s"%i)
+                print([dic[key].GetBinContent(j) for j in range(1,dic[key].GetNbinsX()+1)])
             except KeyError:
                 hUnfoldedtot[key].Add(dic['']) #For eEff and mEff, add nominal if the variation doesn't exist in that channel
     
