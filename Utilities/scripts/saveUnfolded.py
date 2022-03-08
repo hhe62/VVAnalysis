@@ -1073,8 +1073,8 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
             condition = float('inf')
             raise
 
-        #commented_print "channel: ",chan
-        #commented_print "variable: ",varNames[varName]
+        print "channel: ",chan
+        print "variable: ",varNames[varName]
         #commented_print "hResp out of response: ",hResp
         #commented_print ''
         #commented_print 'condition: {}'.format(condition)
@@ -1166,10 +1166,13 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
     else:
         return hOut
 
+_generateUncertainties_count=0 #global counter for distinguishing histogram to suppress warning message in the printout
 
 def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
     #if called after rebin, the overflow bin is 0 already, and do we include underflow bin?
     #rebin was not called for histograms in hUnfolded, so use nbins+1 -> but there shouldn't be overflow bin content for unfolded hist.
+    global _generateUncertainties_count
+    _generateUncertainties_count+=1
     nominalArea = hDict[''].Integral(1,hDict[''].GetNbinsX()+1) #original codes start with 0th bin.
     hn = hDict[''].Clone()
     if norm:
@@ -1210,8 +1213,8 @@ def _generateUncertainties(hDict,varName,norm): #hDict is hUnfolded dict
     else:
         histbins=array.array('d',_binning[varName])
     
-    hUncScaleUp=ROOT.TH1D("hUncScaleUp","QCD scale uncertainty up.",len(histbins)-1,histbins)
-    hUncScaleDn=ROOT.TH1D("hUncScaleDn","QCD scale uncertainty down.",len(histbins)-1,histbins)
+    hUncScaleUp=ROOT.TH1D("hUncScaleUp"+str(_generateUncertainties_count),"QCD scale uncertainty up.",len(histbins)-1,histbins)
+    hUncScaleDn=ROOT.TH1D("hUncScaleDn"+str(_generateUncertainties_count),"QCD scale uncertainty down.",len(histbins)-1,histbins)
 
 
     avghist = None
@@ -1411,7 +1414,10 @@ def _sumUncertainties(errDict,varName):
 
     return hUncUp, hUncDn
 
+_sumUncertainties_info_count=0 # counter used to distinguish histograms to suppress warning message
 def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above but used to printout info
+    global _sumUncertainties_info_count
+    _sumUncertainties_info_count +=1
     year = analysis[4:]
     systSum = {}
     ferrinfo=open("ErrorInfo_%s%s.log"%(varName,chan),'w')
@@ -1436,8 +1442,8 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
     else:
         histbins=array.array('d',_binning[varName])
     #print "histbins: ",histbins
-    hUncUp=ROOT.TH1D("hUncUp","Total Up Uncert.",len(histbins)-1,histbins)
-    hUncDn=ROOT.TH1D("hUncDn","Total Dn Uncert.",len(histbins)-1,histbins)
+    hUncUp=ROOT.TH1D("hUncUp"+str(_sumUncertainties_info_count),"Total Up Uncert.",len(histbins)-1,histbins)
+    hUncDn=ROOT.TH1D("hUncDn"+str(_sumUncertainties_info_count),"Total Dn Uncert.",len(histbins)-1,histbins)
     sysList = errDict['Up'].keys()
 
     extraSystSumList = ['pdf','stat','total']
@@ -1572,10 +1578,11 @@ def sumUnfoldDict(*hUnfoldeds):
         else:
             histbins=array.array('d',_binning[varName])
             #print "histTot histbins: ",histbins
-        histTot=ROOT.TH1D("histTotUnfolded","Tot hist",len(histbins)-1,histbins)
-        ROOT.SetOwnership(histTot,False)
-        hUnfoldedtot[key] = histTot.Clone() 
-
+        #histTot=ROOT.TH1D("histTotUnfolded_tmp","Tot hist",len(histbins)-1,histbins)
+        #ROOT.SetOwnership(histTot,False)
+        hUnfoldedtot[key] = ROOT.TH1D("histTotUnfolded_tmp","Tot hist "+key,len(histbins)-1,histbins)
+        hUnfoldedtot[key].SetName(key+'tot_Sum') 
+        
         print("Unc type before norm:%s"%key)
         
     
@@ -1857,7 +1864,7 @@ for varName in runVariables:
     if args['makeTotals']:
         if not args['noSyst']:
             
-            hUnfoldedtotDic = sumUnfoldDict(*hUnfolded.values())
+            hUnfoldedtotDic = sumUnfoldDict(*[hUnfolded['eeee'],hUnfolded['eemm'],hUnfolded['mmmm']])
             hErr_tot= _generateUncertainties(hUnfoldedtotDic,varName,norm)
             hErrTot = hErr_tot#_combineChannelUncertainties(*hErr.values())
             hTotUncUp, hTotUncDn = _sumUncertainties_info(norm,hErrTot,varName,hUnfoldedtotDic[''].Clone()) #hTot.Clone())
