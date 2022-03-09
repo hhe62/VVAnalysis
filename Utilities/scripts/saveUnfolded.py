@@ -13,6 +13,7 @@ import subprocess
 import sys,json
 import datetime
 import array
+import time
 from ROOT import vector as Vec
 VFloat = Vec('float')
 from PlotTools import PlotStyle as Style, pdfViaTex
@@ -530,6 +531,12 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
 
     hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal,hBkgTotal,hTruth[''],hResponse,hData, nIter,True)
     print("Position Indicator: nominal")
+    printTH1(hData,'data nominal')
+    printTH1(hSigNominal,'sig nominal')
+    printTH1(hBkgTotal,'bkg nominal')
+    printTH1(hTruth[''],'truth nominal')
+    printTH2(hResponse,'response matrix nominal')
+
     #print "hUnfolded['']: ",hUnfolded[''].Integral()
     
     #print("hResp: ",hResp) 
@@ -626,6 +633,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             #pdb.set_trace()
             hUnfolded['ggZZxsec_'+sys] = getUnfolded(hSigGX,hBkgTotalGX,hTrueGX,hRespGX,hData, nIter)
             print("Position Indicator:"+'ggZZxsec_'+sys)            
+            printTH1(hData,'data '+'ggZZxsec_'+sys)
+            printTH1(hSigGX,'sig '+'ggZZxsec_'+sys)
+            printTH1(hBkgTotalGX,'bkg '+'ggZZxsec_'+sys)
+            printTH1(hTrueGX,'truth '+'ggZZxsec_'+sys)
+            printTH2(hRespGX,'response matrix '+'ggZZxsec_'+sys)
             del hSigGX
             del hBkgMCGX
             del hTrueGX
@@ -664,6 +676,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
 
             hUnfolded['fake_'+sys],hCovFake,hRespFake = getUnfolded(hSigFake,hBkgTotalFake,hTrueFakeShift,hResponseFake,hData, nIter,True)
             print("Position Indicator:"+'fake_'+sys)
+            printTH1(hData,'data '+'fake_'+sys)
+            printTH1(hSigFake,'sig '+'fake_'+sys)
+            printTH1(hBkgTotalFake,'bkg '+'fake_'+sys)
+            printTH1(hTrueFakeShift,'truth '+'fake_'+sys)
+            printTH2(hResponseFake,'response matrix '+'fake_'+sys)
             del hSigFake
             del hBkgMCFake
             del hBkgFake
@@ -702,6 +719,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
 
             hUnfolded['lumi_'+sys],hCovLumi,hRespLumi = getUnfolded(hSigLumi,hBkgTotalLumi,hTrueLumiShift,hResponseLumi,hData, nIter,True)
             print("Position Indicator:"+'lumi_'+sys)
+            printTH1(hData,'data '+'lumi_'+sys)
+            printTH1(hSigLumi,'sig '+'lumi_'+sys)
+            printTH1(hBkgTotalLumi,'bkg '+'lumi_'+sys)
+            printTH1(hTrueLumiShift,'truth '+'lumi_'+sys)
+            printTH2(hResponseLumi,'response matrix '+'lumi_'+sys)
             del hSigLumi
             del hBkgMCLumi
             del hBkgLumi
@@ -762,11 +784,17 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
                                                      hTruth[''],
                                                      hRespPU,
                                                      hData, nIter)
+            print("Position Indicator:"+'pu_'+sys)
+            printTH1(hData,'data '+'pu_'+sys)
+            printTH1(hSigPU,'sig '+'pu_'+sys)
+            printTH1(hBkgPUTotal,'bkg '+'pu_'+sys)
+            printTH1(hTruth[''],'truth '+'pu_'+sys)
+            printTH2(hRespPU,'response matrix '+'pu_'+sys)
             del hSigPU
             del hBkgMCPU
             del hBkgPU
             del hRespPU
-            print("Position Indicator:"+'pu_'+sys)
+            
 #Add systematics for JES and JER
         hResponseJET = {s:resp for s,resp in responseMakers.items()}
         hRespJETTot = hResponseJET.pop(mynominalName)
@@ -807,6 +835,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
                                                      hRespJET,
                                                      hData, nIter)
             print("Position Indicator:"+sys)
+            printTH1(hData,'data '+sys)
+            printTH1(hSigJETsub,'sig '+sys)
+            printTH1(hBkgJETTotal,'bkg '+sys)
+            printTH1(hTruth[''],'truth '+sys)
+            printTH2(hRespJET,'response matrix '+sys)
             del hSigJETsub
             del hBkgMCJETsub
             del hRespJET
@@ -952,6 +985,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
                                                          hRespSyst,
                                                          hData, nIter,True)
                 print("Position Indicator:"+lep+'Eff_'+sys)
+                printTH1(hData,'data '+lep+'Eff_'+sys)
+                printTH1(hSigSyst,'sig '+lep+'Eff_'+sys)
+                printTH1(hBkgSystTotal,'bkg '+lep+'Eff_'+sys)
+                printTH1(hTruth[''],'truth '+lep+'Eff_'+sys)
+                printTH2(hRespSyst,'response matrix '+lep+'Eff_'+sys)
                 del hSigSyst
                 del hBkgMCSyst
                 del hBkgSyst
@@ -1015,6 +1053,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     
     hUnfolded['generator']  = getUnfolded(hAltSigNominal,hBkgTotal,hTrueAlt[''],hAltResponse,hData, nIter) 
     print("Position Indicator:generator")
+    printTH1(hData,'data '+'generator')
+    printTH1(hAltSigNominal,'sig '+'generator')
+    printTH1(hBkgTotal,'bkg '+'generator')
+    printTH1(hTrueAlt[''],'truth '+'generator')
+    printTH2(hAltResponse,'response matrix '+'generator')
     del hResponseDebug
     # make everything local (we'll cache copies)
     
@@ -1026,6 +1069,24 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     #commented_print "hUnfolded (inside unfold): ",hUnfolded
     #commented_print "hTrueAlt (inside unfold): ",hTrueAlt
     return hUnfolded,hTruth,hTrueAlt,hData
+
+def printTH1(hist,label):
+    contents = []
+    for i in range(1,hist.GetNbinsX()+1):
+        contents.append(hist.GetBinContent(i))
+    time.sleep(0.2) #prevent mixing with potential warning message
+    print('Diagnostic bin contents of %s:'%label)
+    print(contents)
+
+def printTH2(hist,label):
+    contents = []
+    for i in range(1,hist.GetNbinsX()+1):
+        for j in range(1,hist.GetNbinsX()+1): #same xy dimension
+            contents.append(hist.GetBinContent(i,j))
+    time.sleep(0.2) #prevent mixing with potential warning message
+    print('Diagnostic matrix bin contents of %s:'%label)
+    print(contents)
+
 
 #rebin histos and take care of overflow bins
 def rebin(hist,varName):
