@@ -1134,6 +1134,7 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
             condition = float('inf')
             raise
 
+        print("Printout record start here:")
         print "channel: ",chan
         print "variable: ",varNames[varName]
         #commented_print "hResp out of response: ",hResp
