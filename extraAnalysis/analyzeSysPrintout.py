@@ -2,6 +2,7 @@ import ROOT as r
 import pdb,subprocess,math,array
 import sys,json,os
 import numpy as np
+from RooUnfoldBayes_reimplement import *
 
 def getTextBox(x,y,axisLabel,size=0.2,rotated=False):
     texS = r.TLatex(x,y,axisLabel)
@@ -15,7 +16,7 @@ def getTextBox(x,y,axisLabel,size=0.2,rotated=False):
     texS.Draw()
     return texS
 
-def makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'SysDetailedPlots'):
+def makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,plotlabel,folderName = 'SysDetailedPlots'):
     colors = [1,2,3,4,5,6]
     markers = [1,2,3,4,5,6]
     maxs = []
@@ -64,6 +65,7 @@ def makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'SysDeta
     latex.SetTextSize(0.04)
     #if "Full" in var:
     textbox= getTextBox(0.5,0.96,chan,0.03)
+    textbox2= getTextBox(0.45,0.9,plotlabel,0.03)
     #latex.DrawLatex(0.74,0.83 ,"59.7fb^{-1}")
     
     if not os.path.isdir(folderName):
@@ -75,8 +77,9 @@ def makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'SysDeta
         print("Problem saving plot.")
     c1.Clear()
     pdfcommand.append("%s/%s_%s_%s.png"%(folderName,var,chan,order))
+    pdfcommand_global.append("%s/%s_%s_%s.png"%(folderName,var,chan,order))
 
-def makeMatrixPlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'SysDetailedPlots'):
+def makeMatrixPlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,plotlabel,folderName = 'SysDetailedPlots'):
     colors = [1,2,3,4,5,6]
     markers = [1,2,3,4,5,6]
     maxs = []
@@ -125,6 +128,7 @@ def makeMatrixPlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'S
     latex.SetTextSize(0.04)
     #if "Full" in var:
     textbox= getTextBox(0.5,0.96,chan,0.03)
+    textbox2= getTextBox(0.45,0.9,plotlabel,0.03)
     #latex.DrawLatex(0.74,0.83 ,"59.7fb^{-1}")
     
     if not os.path.isdir(folderName):
@@ -136,14 +140,17 @@ def makeMatrixPlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'S
         print("Problem saving plot.")
     c1.Clear()
     pdfcommand.append("%s/%s_%s_%s.png"%(folderName,var,chan,order))
+    pdfcommand_global.append("%s/%s_%s_%s.png"%(folderName,var,chan,order))
 
 nostat = True
+testUnf = True
 pdfcommand=['convert']
 pdfcommand_dmb=['convert']
 pdfcommand_sig=['convert']
 pdfcommand_truth=['convert']
 pdfcommand_matrix = ['convert']
-commandlist = [pdfcommand,pdfcommand_dmb,pdfcommand_sig,pdfcommand_truth,pdfcommand_matrix]
+pdfcommand_global = ['convert']
+commandlist = [pdfcommand,pdfcommand_dmb,pdfcommand_sig,pdfcommand_truth,pdfcommand_matrix,pdfcommand_global]
 
 with open('varsFile.json') as var_json_file:
     myvar_dict = json.load(var_json_file)
@@ -303,7 +310,7 @@ for chan in channels:
         typesDiv = [types[i] for i in ranges]
         histsDiv = [hists[i] for i in ranges]
         areasDiv = [areas[i] for i in ranges]
-        makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,folderName = 'SysDetailedPlots')
+        makePlot(typesDiv,histsDiv,areasDiv,chan,c1,pdfcommand,"Unfolded Results",folderName = 'SysDetailedPlots')
 
         divdict = {}
         for prefix in ['type','data','sig','bkg','truth','matrix']:
@@ -311,10 +318,34 @@ for chan in channels:
         divdict['dmb'] = [divdict['data'][i].Clone('dmb%s'%i) for i in range(0,len(divdict['data']))]
         for i in range(0,len(divdict['dmb'])):
             divdict['dmb'][i].Add(divdict['bkg'][i],-1)
-        makePlot(divdict['type'],divdict['dmb'],areasDiv,chan,c1,pdfcommand_dmb,folderName = 'DataMinusBkgPlots')    
-        makePlot(divdict['type'],divdict['sig'],areasDiv,chan,c1,pdfcommand_sig,folderName = 'SignalPlots')
-        makePlot(divdict['type'],divdict['truth'],areasDiv,chan,c1,pdfcommand_truth,folderName = 'TruthPlots')
-        makeMatrixPlot(divdict['type'],divdict['matrix'],areasDiv,chan,c1,pdfcommand_matrix,folderName = 'MatrixPlots')
+        makePlot(divdict['type'],divdict['dmb'],areasDiv,chan,c1,pdfcommand_dmb,"Data minus bkg",folderName = 'DataMinusBkgPlots')    
+        makePlot(divdict['type'],divdict['sig'],areasDiv,chan,c1,pdfcommand_sig,"Sig Plot",folderName = 'SignalPlots')
+        makePlot(divdict['type'],divdict['truth'],areasDiv,chan,c1,pdfcommand_truth,"Truth Plot",folderName = 'TruthPlots')
+        makeMatrixPlot(divdict['type'],divdict['matrix'],areasDiv,chan,c1,pdfcommand_matrix,"Resp Matrices",folderName = 'MatrixPlots')
+        
+        if testUnf and order == 0 and chan=='eeee':
+            print('Testing '+ divdict['type'][0])
+            #afile = r.TFile('ggZZxsec_down.root','RECREATE')
+            #afile.cd()
+            #divdict['sig'][0].Write()
+            #divdict['truth'][0].Write()
+            #divdict['matrix'][0].Write()
+            #divdict['dmb'][0].Write()
+            #sys.exit()
+            testdmb = divdict['dmb'][0].Clone()
+            dmb_printver = [-0.16745262345415665, -0.3142660111831682, -0.29620059239180124, 0.16902912781951573, -0.7315486655648783, 1.870785075540953, 2.6573732016988245, -0.020525411828250302, 0.014777588030264034, -0.013639418161901874]
+            for i,x in enumerate(dmb_printver):
+                testdmb.SetBinContent(i+1,x)
+            denegative = False
+            if denegative:
+                for i in range(1,testdmb.GetNbinsX()+1):
+                    if testdmb.GetBinContent(i) <0:
+                        testdmb.SetBinContent(i,0.)
+
+            respmatrix = RooUnfoldResponse(divdict['sig'][0],divdict['truth'][0],divdict['matrix'][0])
+            unfold1 =RooUnfoldBayes(respmatrix, testdmb,4)
+            hReco = unfold1.Hreco()
+            #sys.exit()
 
 
         #pdb.set_trace()
@@ -326,6 +357,9 @@ pdfcommand_dmb.append('DataMinusBkgPlots'+"/DataMinusBkgPlots_%s.pdf"%var)
 pdfcommand_sig.append('SignalPlots'+"/SignalPlots_%s.pdf"%var)
 pdfcommand_truth.append('TruthPlots'+"/TruthPlots_%s.pdf"%var)
 pdfcommand_matrix.append('MatrixPlots'+"/MatrixPlots_%s.pdf"%var)
+pdfcommand_global.append('AllPlots'+"/AllPlots_%s.pdf"%var)
+if not os.path.isdir('AllPlots'):
+        os.mkdir('AllPlots')
 for comm in commandlist:
     subprocess.call(comm)
 
