@@ -1109,9 +1109,14 @@ def rebin(hist,varName):
 
 def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False):
     Response = getattr(ROOT,"RooUnfoldResponse")
+    specBkg = True #a separate bkg treatment according to D'Agostini
+    clean0 = False #clean bins with negative value
 
     #commented_print "TrueBeforeResponse: ", hTrue,", ",hTrue.Integral()
     #commented_print "SigBeforeResponse: ", hSig,", ",hSig.Integral()
+    
+    if specBkg:
+        hSig.Add(hBkg)
     response = Response(hSig, hTrue.Clone(), hResponse.Clone()) 
     ROOT.SetOwnership(response,False)
     ROOT.SetOwnership(hData,False)
@@ -1170,7 +1175,12 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
     hDataMinusBkg.Reset()
     #commented_print "hBkg: ", hBkg.Integral()
     hDataMinusBkg.Add(hData,1)
-    hDataMinusBkg.Add(hBkg,-1)
+    if not specBkg:
+        hDataMinusBkg.Add(hBkg,-1)
+    if clean0:
+        for ind in range(1,hDataMinusBkg.GetNbinsX()+1):
+            if hDataMinusBkg.GetBinContent(ind) <0.:
+                hDataMinusBkg.SetBinContent(ind,0.)
     #hDataMinusBkg.Add(hBkg,-1)
     #HistTools.zeroNegativeBins(hDataMinusBkg)
     #commented_print "DataMinusbkgIntegral: ",hDataMinusBkg, ", ",hDataMinusBkg.Integral()
