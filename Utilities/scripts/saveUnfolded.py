@@ -536,7 +536,8 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     printTH1(hBkgTotal,'bkg nominal')
     printTH1(hTruth[''],'truth nominal')
     printTH2(hResponse,'response matrix nominal')
-
+    printTH1(hUnfolded[''],'unfolded results nominal')
+    printTH1Error(hUnfolded[''],'unfolded errors nominal')
     #print "hUnfolded['']: ",hUnfolded[''].Integral()
     
     #print("hResp: ",hResp) 
@@ -627,6 +628,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hSigGX=rebin(hSigGX,varName)
             hTrueGX=rebin(hTrueGX,varName)
             hBkgTotalGX=rebin(hBkgTotalGX,varName)
+            hBkgGX = rebin(hBkgGX,varName)
 
             #print "trueHist: ",hTrueLumiShift,", ",hTrueLumiShift.Integral()
             #print "TotBkgHistLumi after rebinning: ",hBkgTotalLumi,", ",hBkgTotalLumi.Integral()
@@ -635,7 +637,9 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             print("Position Indicator:"+'ggZZxsec_'+sys)            
             printTH1(hData,'data '+'ggZZxsec_'+sys)
             printTH1(hSigGX,'sig '+'ggZZxsec_'+sys)
+            printTH1Error(hSigGX,'sig Error '+'ggZZxsec_'+sys)
             printTH1(hBkgTotalGX,'bkg '+'ggZZxsec_'+sys)
+            printTH1(hBkgGX,'bkg nonprompt only '+'ggZZxsec_'+sys)
             printTH1(hTrueGX,'truth '+'ggZZxsec_'+sys)
             printTH2(hRespGX,'response matrix '+'ggZZxsec_'+sys)
             del hSigGX
@@ -1076,6 +1080,20 @@ def printTH1(hist,label):
         contents.append(hist.GetBinContent(i))
     time.sleep(0.2) #prevent mixing with potential warning message
     print('Diagnostic bin contents of %s:'%label)
+    print(contents)
+
+def truncateTH1(hist):
+    
+    for i in range(1,hist.GetNbinsX()+1):
+        if hist.GetBinContent(i)<0.:
+            hist.SetBinContent(i,0.)
+
+def printTH1Error(hist,label):
+    contents = []
+    for i in range(1,hist.GetNbinsX()+1):
+        contents.append(hist.GetBinError(i))
+    time.sleep(0.2) #prevent mixing with potential warning message
+    print('Diagnostic bin error of %s:'%label)
     print(contents)
 
 def printTH2(hist,label):

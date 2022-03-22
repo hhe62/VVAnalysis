@@ -35,13 +35,16 @@ def getDifferenceDirect(fOut, name, comp1, comp2, ratioFunc=None):
         hist2 = comp2.FindObject(histname)
         if hist1 and hist2:
             diff = hist1.Clone()
-            diff.Add(hist2, -1)
+            diff.Add(hist2, -1) 
         elif not hist1:
             logging.warning("Hist %s was not produced for " \
                 "dataset(s) %s" % (histname, dir1))
         elif not hist2:
             logging.warning("Hist %s was not produced for " \
                 "dataset(s) %s" % (histname, dir2))
+        #for ind in range(1,diff.GetNbinsX()+1): # for nonprompt truncate negative bins
+        #    if diff.GetBinContent(ind)<0.:
+        #        diff.SetBinContent(ind,0.)
         differences.Add(diff)
     if ratioFunc:
         ratios = ratioFunc(differences)
