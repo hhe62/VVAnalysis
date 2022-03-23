@@ -499,11 +499,15 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     hData = hDataDic[chan][varNames[varName]]
     #print "dataHist: ",hData,", ",hData.Integral()
     #Get the background hists - #Get the histName_Fakes_chan histos
-    hBkgNominal = hbkgDic[chan][varNames[varName]+"_Fakes"]
+    hBkgNominal = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
     #print "NonPromptHist: ",hBkgNominal,", ",hBkgNominal.Integral()
-    hBkgMCNominal = hbkgMCDic[chan][varNames[varName]]
+    hBkgMCNominal = hbkgMCDic[chan][varNames[varName]].Clone()
     #print "VVVHist: ",hBkgMCNominal,", ",hBkgMCNominal.Integral()
     #Add the two backgrounds
+
+    hBkgNominal = rebin(hBkgNominal,varName)
+    truncateTH1(hBkgNominal)
+    hBkgMCNominal = rebin(hBkgMCNominal,varName)
     hBkgTotal=hBkgNominal.Clone()
     hBkgTotal.Add(hBkgMCNominal)
     #print "TotBkgHist: ",hBkgTotal,", ",hBkgTotal.Integral()
@@ -520,7 +524,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     hSigNominal=rebin(hSigNominal,varName)
     hTrue=rebin(hTrue,varName)
     hData=rebin(hData,varName)
-    hBkgTotal=rebin(hBkgTotal,varName)
+    #hBkgTotal=rebin(hBkgTotal,varName)
     
     xaxisSize = hSigNominal.GetXaxis().GetTitleSize()
     yaxisSize = hTrue.GetXaxis().GetTitleSize()
@@ -605,10 +609,13 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hSigGX.SetDirectory(0)
             hTrueGX.SetDirectory(0)
 
-            hBkgGX = hbkgDic[chan][varNames[varName]+"_Fakes"] 
+            hBkgGX = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone() 
             hBkgGX.SetDirectory(0)
             hBkgMCGX = hbkgMCDic[chan][varNames[varName]].Clone()
             hBkgMCGX.SetDirectory(0)
+            hBkgGX = rebin(hBkgGX,varName)
+            truncateTH1(hBkgGX)
+            hBkgMCGX = rebin(hBkgMCGX,varName)
             hBkgTotalGX=hBkgGX.Clone() #clone in case
             hBkgTotalGX.Add(hBkgMCGX)
 
@@ -627,8 +634,8 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             
             hSigGX=rebin(hSigGX,varName)
             hTrueGX=rebin(hTrueGX,varName)
-            hBkgTotalGX=rebin(hBkgTotalGX,varName)
-            hBkgGX = rebin(hBkgGX,varName)
+            #hBkgTotalGX=rebin(hBkgTotalGX,varName)
+            
 
             #print "trueHist: ",hTrueLumiShift,", ",hTrueLumiShift.Integral()
             #print "TotBkgHistLumi after rebinning: ",hBkgTotalLumi,", ",hBkgTotalLumi.Integral()
@@ -660,8 +667,11 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hBkgFake = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
             hBkgFake.Scale(scale)
             hBkgFake.SetDirectory(0)
+            hBkgFake=rebin(hBkgFake,varName)
+            truncateTH1(hBkgFake)
             hBkgMCFake = hbkgMCDic[chan][varNames[varName]].Clone()
             hBkgMCFake.SetDirectory(0)
+            hBkgMCFake=rebin(hBkgMCFake,varName)
             hBkgTotalFake=hBkgFake.Clone()
             hBkgTotalFake.Add(hBkgMCFake)
 
@@ -673,7 +683,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             #print "VVVHist: ",hBkgMCFake,", ",hBkgMCFake.Integral()
             #Add the two backgrounds
 
-            hBkgTotalFake=rebin(hBkgTotalFake,varName)
+            #hBkgTotalFake=rebin(hBkgTotalFake,varName)
 
             #print "trueHist: ",hTrueFakeShift,", ",hTrueFakeShift.Integral()
             #print "TotBkgHistFake after rebinning: ",hBkgTotalFake,", ",hBkgTotalFake.Integral()
@@ -699,11 +709,14 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hSigLumi = hSigNominal * scale
             hSigLumi.SetDirectory(0)
 
-            hBkgLumi = hbkgDic[chan][varNames[varName]+"_Fakes"]
+            hBkgLumi = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
             hBkgLumi.SetDirectory(0)
+            hBkgLumi=rebin(hBkgLumi,varName)
+            truncateTH1(hBkgLumi)
             hBkgMCLumi = hbkgMCDic[chan][varNames[varName]].Clone()
             hBkgMCLumi.SetDirectory(0)
             hBkgMCLumi.Scale(scale)
+            hBkgMCLumi=rebin(hBkgMCLumi,varName)
             hBkgTotalLumi=hBkgLumi.Clone()
             hBkgTotalLumi.Add(hBkgMCLumi)
 
@@ -716,7 +729,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             #print "VVVHist: ",hBkgMCLumi,", ",hBkgMCLumi.Integral()
             #Add the two backgrounds
 
-            hBkgTotalLumi=rebin(hBkgTotalLumi,varName)
+            #hBkgTotalLumi=rebin(hBkgTotalLumi,varName)
 
             #print "trueHist: ",hTrueLumiShift,", ",hTrueLumiShift.Integral()
             #print "TotBkgHistLumi after rebinning: ",hBkgTotalLumi,", ",hBkgTotalLumi.Integral()
@@ -770,17 +783,20 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hSigPU.SetDirectory(0)
             #print 'pu_'+sys 
             #print "sigHist: ", hSigPU,", ",hSigPU.Integral()
-            hBkgPU = hbkgDic[chan][varNames[varName]+"_Fakes"]
+            hBkgPU = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
             hBkgPU.SetDirectory(0)
+            hBkgPU=rebin(hBkgPU,varName)
+            truncateTH1(hBkgPU)
             #print "NonPromptHist: ",hBkgPU,", ",hBkgPU.Integral()
-            hBkgMCPU = hbkgMCSystDic[chan][varNames[varName]+"_CMS_pileup"+sys]
+            hBkgMCPU = hbkgMCSystDic[chan][varNames[varName]+"_CMS_pileup"+sys].Clone()
             hBkgMCPU.SetDirectory(0)
+            hBkgMCPU=rebin(hBkgMCPU,varName)
             #print "VVVHist: ",hBkgMCPU,", ",hBkgMCPU.Integral()
             hBkgPUTotal=hBkgPU.Clone()
             hBkgPUTotal.Add(hBkgMCPU) #don't think hBkgMCPU needs to be cloned
             #print "TotBkgPUHist: ",hBkgPUTotal,", ",hBkgPUTotal.Integral()
             hSigPU=rebin(hSigPU,varName)
-            hBkgPUTotal=rebin(hBkgPUTotal,varName)
+            #hBkgPUTotal=rebin(hBkgPUTotal,varName)
             #print "TotBkgPUHist after Rebinning: ",hBkgPUTotal,", ",hBkgPUTotal.Integral()
             
             hUnfolded['pu_'+sys] = getUnfolded(hSigPU,
@@ -806,10 +822,12 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         hSigJET = hSigSystDic[chan][varNames[varName]+"_jetsysts"] #TH2
         hSigJET.SetDirectory(0)
             
-        hBkgJET = hbkgDic[chan][varNames[varName]+"_Fakes"]
+        hBkgJET = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
         hBkgJET.SetDirectory(0)
+        hBkgJET=rebin(hBkgJET,varName)
+        truncateTH1(hBkgJET)
             
-        hBkgMCJET = hbkgMCSystDic[chan][varNames[varName]+"_jetsysts"] #TH2
+        hBkgMCJET = hbkgMCSystDic[chan][varNames[varName]+"_jetsysts"].Clone() #TH2
         hBkgMCJET.SetDirectory(0)
 
         for i,sys in enumerate(["jes_up","jes_dn","jer_up","jer_dn"]):
@@ -826,11 +844,12 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             hSigJETsub.SetDirectory(0)
             
             hBkgMCJETsub = hBkgMCJET.ProjectionX("JETBkg_%s"%i,i+1,i+1,"e")
+            hBkgMCJETsub=rebin(hBkgMCJETsub,varName)
             hBkgJETTotal=hBkgJET.Clone()
             hBkgJETTotal.Add(hBkgMCJETsub)
             
             hSigJETsub=rebin(hSigJETsub,varName)
-            hBkgJETTotal=rebin(hBkgJETTotal,varName)
+            #hBkgJETTotal=rebin(hBkgJETTotal,varName)
            
             
             hUnfolded[sys] = getUnfolded(hSigJETsub,
@@ -882,14 +901,17 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         hTrue_ggZZonly.SetDirectory(0)
         #print 'pu_'+sys 
         #print "sigHist: ", hSigPS,", ",hSigPS.Integral()
-        hBkgPSt = hbkgDic[chan][varNames[varName]+"_Fakes"]
+        hBkgPSt = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
         hBkgPSt.SetDirectory(0)
+        hBkgPSt=rebin(hBkgPSt,varName)
+        truncateTH1(hBkgPSt)
         #print "NonPromptHist: ",hBkgPS,", ",hBkgPS.Integral()
         hBkgMCPSt = hbkgMCDic[chan][varNames[varName]].Clone() #hbkgMCSystDic[chan][varNames[varName]+"_lheWeights"]
         hBkgMCPSt.SetDirectory(0)
+        hBkgMCPSt=rebin(hBkgMCPSt,varName)
         hBkgPSTotal=hBkgPSt.Clone()
         hBkgPSTotal.Add(hBkgMCPSt)
-        hBkgPSTotal=rebin(hBkgPSTotal,varName)
+        #hBkgPSTotal=rebin(hBkgPSTotal,varName)
         #print "VVVHist: ",hBkgMCPS,", ",hBkgMCPS.Integral()
         #hBkgPSTotalt=hBkgPSt.Clone()
         #hBkgPSTotalt.Add(hBkgMCPSt)
@@ -969,17 +991,20 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
                 hSigSyst.SetDirectory(0)
                 #print lep+'Eff_'+sys 
                 #print "sigHist: ", hSigSyst,", ",hSigSyst.Integral()
-                hBkgSyst = hbkgDic[chan][varNames[varName]+"_Fakes"]
+                hBkgSyst = hbkgDic[chan][varNames[varName]+"_Fakes"].Clone()
                 hBkgSyst.SetDirectory(0)
+                hBkgSyst=rebin(hBkgSyst,varName)
+                truncateTH1(hBkgSyst)
                 #print "NonPromptHist: ",hBkgSyst,", ",hBkgSyst.Integral()
-                hBkgMCSyst = hbkgMCSystDic[chan][varNames[varName]+"_CMS_eff_"+lep+sys]
+                hBkgMCSyst = hbkgMCSystDic[chan][varNames[varName]+"_CMS_eff_"+lep+sys].Clone()
                 hBkgMCSyst.SetDirectory(0)
+                hBkgMCSyst=rebin(hBkgMCSyst,varName)
                 #print "VVVHist: ",hBkgMCSyst,", ",hBkgMCSyst.Integral()
                 hBkgSystTotal=hBkgSyst.Clone()
                 hBkgSystTotal.Add(hBkgMCSyst)
                 #print "TotBkgSystHist: ",hBkgSystTotal,", ",hBkgSystTotal.Integral()
                 hSigSyst=rebin(hSigSyst,varName)
-                hBkgSystTotal=rebin(hBkgSystTotal,varName)
+                #hBkgSystTotal=rebin(hBkgSystTotal,varName)
                 #print "TotBkgSystHist after Rebinning: ",hBkgSystTotal,", ",hBkgSystTotal.Integral()
                 #if lep+'Eff_'+sys=="eEff_Up":
                 #    pdb.set_trace()
@@ -1086,7 +1111,9 @@ def truncateTH1(hist):
     
     for i in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(i)<0.:
+            tmperror = abs(hist.GetBinError(i)) #should be positive error, just in case
             hist.SetBinContent(i,0.)
+            hist.SetBinError(i,tmperror)
 
 def printTH1Error(hist,label):
     contents = []
