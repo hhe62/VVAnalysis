@@ -21,6 +21,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -28,7 +29,7 @@
     "Mass4jFull": {
         "ratio_min": 0.4, 
         "top_xy": [
-            0.2, 
+            0.5, 
             0.87
         ], 
         "bottom_size": 0.08, 
@@ -50,9 +51,10 @@
         "ratio_max": 1.8, 
         "prettyVars": "m_{4\\ell}(>=4 jets)", 
         "bottom_xy": [
-            0.2, 
+            0.5, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -80,6 +82,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -106,6 +109,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -132,6 +136,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -158,6 +163,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -183,6 +189,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -209,6 +216,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -235,6 +243,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -266,6 +275,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -292,6 +302,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -323,6 +334,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -354,6 +366,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -380,6 +393,7 @@
             0.6, 
             0.91
         ], 
+        "ymin_fac_extra": 0.3, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -387,7 +401,7 @@
     "Mass34jFull": {
         "ratio_min": 0.4, 
         "top_xy": [
-            0.2, 
+            0.37, 
             0.87
         ], 
         "bottom_size": 0.08, 
@@ -409,9 +423,10 @@
         "ratio_max": 1.8, 
         "prettyVars": "m_{4\\ell}(>=3 jets)", 
         "bottom_xy": [
-            0.2, 
+            0.37, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -444,6 +459,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -476,6 +492,7 @@
             0.4, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -508,6 +525,7 @@
             0.37, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -534,6 +552,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -566,6 +585,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
@@ -598,6 +618,7 @@
             0.2, 
             0.91
         ], 
+        "ymin_fac_extra": 1.0, 
         "units": "[GeV]", 
         "responseClassNames": "testJet", 
         "top_size": 0.1

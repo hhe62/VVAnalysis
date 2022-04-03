@@ -533,7 +533,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     #print "TotBkgHist after rebinning: ",hBkgTotal,", ",hBkgTotal.Integral()
     hTruth['']=hTrue
 
-    hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal,hBkgTotal,hTruth[''],hResponse,hData, nIter,True)
+    hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal.Clone(),hBkgTotal,hTruth[''],hResponse,hData, nIter,True)
     print("Position Indicator: nominal")
     printTH1(hData,'data nominal')
     printTH1(hSigNominal,'sig nominal')
@@ -1159,7 +1159,7 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
 
     #commented_print "TrueBeforeResponse: ", hTrue,", ",hTrue.Integral()
     #commented_print "SigBeforeResponse: ", hSig,", ",hSig.Integral()
-    
+    hSig = hSig.Clone() #reassign local variable
     if specBkg:
         hSig.Add(hBkg)
     response = Response(hSig, hTrue.Clone(), hResponse.Clone()) 

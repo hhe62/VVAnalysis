@@ -573,6 +573,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     top_fontsize=myvar_dict[varName]['top_size']
     bottom_fontsize=myvar_dict[varName]['bottom_size']
     ymax_fac=myvar_dict[varName]['ymax_fac']
+    ymin_fac_extra=myvar_dict[varName]['ymin_fac_extra']
 
     UnfHists=[]
     TrueHists=[]
@@ -709,6 +710,12 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hUnf.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         UnfErrBand.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         
+        axisminimum = min([hUnf.GetMinimum(),hTrue.GetMinimum(),hTrueAlt.GetMinimum(),UnfErrBand.GetMinimum()])
+        if not ymin_fac_extra==1.:
+            hTrue.SetMinimum(axisminimum*ymin_fac_extra) #args["scaleymin"] is set to 0.3, not used here
+            hTrueAlt.SetMinimum(axisminimum*ymin_fac_extra)
+            hUnf.SetMinimum(axisminimum*ymin_fac_extra)
+            UnfErrBand.SetMinimum(axisminimum*ymin_fac_extra)
       
         #ROOT.dotrootImport('uhussain/CMSPlotDecorations')
         #scale_label = "Normalized to Unity" if args['lumi'] < 0 else \
