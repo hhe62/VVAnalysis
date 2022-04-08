@@ -1097,7 +1097,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         #h.SetDirectory(0)
     #commented_print "hUnfolded (inside unfold): ",hUnfolded
     #commented_print "hTrueAlt (inside unfold): ",hTrueAlt
-    return hUnfolded,hTruth,hTrueAlt,hData
+    return hUnfolded,hTruth,hTrueAlt,hData,hSigNominal
 
 def printTH1(hist,label):
     contents = []
@@ -1918,6 +1918,7 @@ for varName in runVariables:
     print "varName:", varNames[varName]
     # save unfolded distributions by channel, then systematic
     hDataDict = {}
+    hMCSigDict = {}
     hUnfolded = {"eeee":{},"eemm":{},"mmmm":{}}
     hTrue = {"eeee":{},"eemm":{},"mmmm":{}}
     hTrueAlt = {"eeee":{},"eemm":{},"mmmm":{}}
@@ -1938,7 +1939,7 @@ for varName in runVariables:
         print "hUnfolded in main: ", hUnfolded
         print "hTrue in main: ", hTrue
         print "hTrue in main: ", hTrueAlt
-        hUnfolded[chan], hTrue[chan],hTrueAlt[chan],hDataDict[chan] = unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSigSystDic,hTrueDic,hTrueSystDic_qqZZonly,hAltTrueDic,hDataDic,hbkgDic,hbkgMCDic,hbkgMCSystDic,nIterations,OutputDir)
+        hUnfolded[chan], hTrue[chan],hTrueAlt[chan],hDataDict[chan],hMCSigDict[chan] = unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSigSystDic,hTrueDic,hTrueSystDic_qqZZonly,hAltTrueDic,hDataDic,hbkgDic,hbkgMCDic,hbkgMCSystDic,nIterations,OutputDir)
         print("returning unfolded? ",hUnfolded[chan])
         #print("returning truth? ",hTrue[chan])
 
@@ -1988,6 +1989,7 @@ for varName in runVariables:
 
         if "eeee" in channels:
             hTotData = hDataDict["eeee"]
+            hTotMCSig = hMCSigDict["eeee"]
             hTot = hUnfolded["eeee"]['']
             hTrueTot = hTrue["eeee"]['']
             hTrueAltTot = hTrueAlt["eeee"]['']
@@ -1995,6 +1997,7 @@ for varName in runVariables:
         print("channels before adding histos: ",channels)
         for c in ["eemm","mmmm"]:
             hTotData.Add(hDataDict[c])
+            hTotMCSig.Add(hMCSigDict[c])
             hTot.Add(hUnfolded[c][''])
             hTrueTot.Add(hTrue[c][''])
             hTrueAltTot.Add(hTrueAlt[c][''])
@@ -2004,6 +2007,12 @@ for varName in runVariables:
         TotDatName = "tot_"+varName+"_data"
         hTotalData.SetName(TotDatName)
         savehists.append(hTotalData)
+
+        hTotalMCSig = hTotMCSig.Clone()
+        TotSigMCName = "tot_"+varName+"_SigMC"
+        hTotalMCSig.SetName(TotSigMCName)
+        savehists.append(hTotalMCSig)
+
         hTotUnf = hTot.Clone()
         TotName = "tot_"+varName+"_unf"
         hTotUnf.SetName(TotName)
