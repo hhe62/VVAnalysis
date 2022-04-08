@@ -1187,10 +1187,10 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
         print("Printout record start here:")
         print "channel: ",chan
         print "variable: ",varNames[varName]
-        #commented_print "hResp out of response: ",hResp
-        #commented_print ''
-        #commented_print 'condition: {}'.format(condition)
-        #commented_print ''
+        print "hResp out of response: ",hResp
+        print ''
+        print 'condition: {}'.format(condition)
+        print ''
 
     except:
         #commented_print "It broke! #commented_printing debug info"
