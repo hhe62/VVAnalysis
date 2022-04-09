@@ -533,7 +533,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     #print "TotBkgHist after rebinning: ",hBkgTotal,", ",hBkgTotal.Integral()
     hTruth['']=hTrue
 
-    hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal.Clone(),hBkgTotal,hTruth[''],hResponse,hData, nIter,True)
+    hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal.Clone(),hBkgTotal,hTruth[''],hResponse,hData, nIter,withRespAndCov=True,isNom=True)
     print("Position Indicator: nominal")
     printTH1(hData,'data nominal')
     printTH1(hSigNominal,'sig nominal')
@@ -688,7 +688,8 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             #print "trueHist: ",hTrueFakeShift,", ",hTrueFakeShift.Integral()
             #print "TotBkgHistFake after rebinning: ",hBkgTotalFake,", ",hBkgTotalFake.Integral()
 
-            hUnfolded['fake_'+sys],hCovFake,hRespFake = getUnfolded(hSigFake,hBkgTotalFake,hTrueFakeShift,hResponseFake,hData, nIter,True)
+            hUnfolded['fake_'+sys],hCovFake,hRespFake = getUnfolded(hSigFake,hBkgTotalFake,hTrueFakeShift,hResponseFake,hData, nIter,withRespAndCov=True)
+            #hUnfolded['fake_'+sys] = getUnfolded(hSigFake,hBkgTotalFake,hTrueFakeShift,hResponseFake,hData, nIter)
             print("Position Indicator:"+'fake_'+sys)
             printTH1(hData,'data '+'fake_'+sys)
             printTH1(hSigFake,'sig '+'fake_'+sys)
@@ -734,7 +735,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             #print "trueHist: ",hTrueLumiShift,", ",hTrueLumiShift.Integral()
             #print "TotBkgHistLumi after rebinning: ",hBkgTotalLumi,", ",hBkgTotalLumi.Integral()
 
-            hUnfolded['lumi_'+sys],hCovLumi,hRespLumi = getUnfolded(hSigLumi,hBkgTotalLumi,hTrueLumiShift,hResponseLumi,hData, nIter,True)
+            hUnfolded['lumi_'+sys],hCovLumi,hRespLumi = getUnfolded(hSigLumi,hBkgTotalLumi,hTrueLumiShift,hResponseLumi,hData, nIter,withRespAndCov=True)
             print("Position Indicator:"+'lumi_'+sys)
             printTH1(hData,'data '+'lumi_'+sys)
             printTH1(hSigLumi,'sig '+'lumi_'+sys)
@@ -1012,7 +1013,7 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
                                                          hBkgSystTotal,
                                                          hTruth[''],
                                                          hRespSyst,
-                                                         hData, nIter,True)
+                                                         hData, nIter,withRespAndCov=True)
                 print("Position Indicator:"+lep+'Eff_'+sys)
                 printTH1(hData,'data '+lep+'Eff_'+sys)
                 printTH1(hSigSyst,'sig '+lep+'Eff_'+sys)
@@ -1152,7 +1153,7 @@ def rebin(hist,varName):
     #if not hist.GetSumw2(): hist.Sumw2()
     return hist
 
-def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False):
+def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,isNom=False):
     Response = getattr(ROOT,"RooUnfoldResponse")
     specBkg = True #a separate bkg treatment according to D'Agostini
     clean0 = False #clean bins with negative value
@@ -1215,6 +1216,16 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
         c.Print("DebugPlots/resp{}.root".format(_printCounter))
         _printCounter += 1
 
+    #First calculate chi-2 in smeared spaece for bottom-line test
+    chi2_smear = 0.
+    if isNom:
+        
+        for i in range(1,hData.GetNbinsX()+1):
+            if specBkg:
+                chi2_smear += (hData.GetBinContent(i)-hSig.GetBinContent(i))**2/hData.GetBinError(i)
+            else:
+                chi2_smear += (hData.GetBinContent(i)-hBkg.GetBinContent(i)-hSig.GetBinContent(i))**2/hData.GetBinError(i)
+
     #commented_print "hData: ", hData.Integral()
     hDataMinusBkg = hData.Clone()
     hDataMinusBkg.Reset()
@@ -1263,6 +1274,26 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False)
     #3: Errors from the covariance matrix from the variation of the results in toy MC tests
     hCov = unf.Ereco(2)
     hCov3=unf3.Ereco(2)
+
+    #Now calculate chi-2 at unfolded space for bottom-line test
+    if applyreg:
+        hCovInv = hCov3.Clone()
+        hresult = hOut3.Clone()
+    else:
+        hCovInv = hCov.Clone()
+        hresult = hOut.Clone()
+    
+    hCovInv.Invert()
+    chi2_unf = 0.
+    if isNom:
+        for nrow in range(1,hresult.GetNbinsX()+1):
+            for ncol in range(1,hresult.GetNbinsX()+1):
+                chi2_unf+= (hresult.GetBinContent(nrow)-hTrue.GetBinContent(nrow))*(hresult.GetBinContent(ncol)-hTrue.GetBinContent(ncol))*hCovInv(nrow,ncol)
+    if isNom:
+        print("Channel %s for variable %s, chi2_smear is %s, chi2_unf is %s"%(chan,varNames[varName],chi2_smear,chi2_unf))
+        print("chi2_smear - chi2_unf is %s"%(chi2_smear-chi2_unf))
+
+
     #hOut.SetDirectory(0)
     #hResp.SetDirectory(0)
     #ROOT.SetOwnership(hCov,False)
