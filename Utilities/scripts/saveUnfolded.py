@@ -1157,7 +1157,8 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
     Response = getattr(ROOT,"RooUnfoldResponse")
     specBkg = True #a separate bkg treatment according to D'Agostini
     clean0 = False #clean bins with negative value
-
+    if not applyreg:
+        specBkg = False
     #commented_print "TrueBeforeResponse: ", hTrue,", ",hTrue.Integral()
     #commented_print "SigBeforeResponse: ", hSig,", ",hSig.Integral()
     hSig = hSig.Clone() #reassign local variable
@@ -1216,15 +1217,28 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
         c.Print("DebugPlots/resp{}.root".format(_printCounter))
         _printCounter += 1
 
-    #First calculate chi-2 in smeared spaece for bottom-line test
+    #calculate chi-2 in smeared spaece for bottom-line test
     chi2_smear = 0.
+    exclude_bt_bin = []
     if isNom:
         
         for i in range(1,hData.GetNbinsX()+1):
-            if specBkg:
-                chi2_smear += (hData.GetBinContent(i)-hSig.GetBinContent(i))**2/hData.GetBinError(i)
-            else:
-                chi2_smear += (hData.GetBinContent(i)-hBkg.GetBinContent(i)-hSig.GetBinContent(i))**2/hData.GetBinError(i)
+            #if not hData.GetBinError(i) == 0.:
+            error_denominator = hData.GetBinError(i) #don't fix zero division for now
+            #elif not hSig.GetBinError(i) == 0.:
+            #    error_denominator = hSig.GetBinError(i)
+            #else:
+            #    exclude_bt_bin.append(i)
+            #    continue
+            try:
+                if specBkg:
+                    chi2_smear += (hData.GetBinContent(i)-hSig.GetBinContent(i))**2/(error_denominator**2)
+                else:
+                    chi2_smear += (hData.GetBinContent(i)-hBkg.GetBinContent(i)-hSig.GetBinContent(i))**2/(error_denominator**2)
+            except ZeroDivisionError:
+                print("Zero division, chi2_smear set to inf")
+                chi2_smear = float('inf')
+                break
 
     #commented_print "hData: ", hData.Integral()
     hDataMinusBkg = hData.Clone()
@@ -1247,8 +1261,10 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
     #commented_print "response: ",response
 
     #Simply inverting the matrix
-    unf = RooUnfoldInv(response, hDataMinusBkg)
-    unf3 = RooUnfoldBayes(response, hDataMinusBkg,4)
+    if not applyreg:
+        unf = RooUnfoldInv(response, hDataMinusBkg)
+    else:
+        unf3 = RooUnfoldBayes(response, hDataMinusBkg,4)
     #unf3 = RooUnfoldBayes(response, hSig,4)
     #unf = RooUnfoldIter(response, hDataMinusBkg, nIter)
     #commented_print "unf: ",unf 
@@ -1258,12 +1274,14 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
 
     #del hDataMinusBkg
     #This is the unfolded "data" distribution
-    hOut = unf.Hreco()
-    hOut3=unf3.Hreco()
+    if not applyreg:
+        hOut = unf.Hreco()
+    else:
+        hOut3=unf3.Hreco()
     #ROOT.SetOwnership(hOut,False)
-    if not hOut:
+    #if not hOut:
         #commented_print hOut
-        raise ValueError("The unfolded histogram got screwed up somehow!")
+    #    raise ValueError("The unfolded histogram got screwed up somehow!")
     #commented_print("hOut: ",hOut,"",hOut.Integral())
     #commented_print("Check first bin simple:",hOut.GetBinContent(1))
     #commented_print("Check first bin reg:",hOut.GetBinContent(1))
@@ -1272,8 +1290,10 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
     #1: Errors from the diagonals of the covariance matrix given by the unfolding
     #2: Errors from the covariance matrix given by the unfolding => We use this one for now
     #3: Errors from the covariance matrix from the variation of the results in toy MC tests
-    hCov = unf.Ereco(2)
-    hCov3=unf3.Ereco(2)
+    if not applyreg:
+        hCov = unf.Ereco(2)
+    else:
+        hCov3=unf3.Ereco(2)
 
     #Now calculate chi-2 at unfolded space for bottom-line test
     if applyreg:
@@ -1283,15 +1303,28 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
         hCovInv = hCov.Clone()
         hresult = hOut.Clone()
     
-    hCovInv.Invert()
     chi2_unf = 0.
-    if isNom:
-        for nrow in range(1,hresult.GetNbinsX()+1):
-            for ncol in range(1,hresult.GetNbinsX()+1):
-                chi2_unf+= (hresult.GetBinContent(nrow)-hTrue.GetBinContent(nrow))*(hresult.GetBinContent(ncol)-hTrue.GetBinContent(ncol))*hCovInv(nrow,ncol)
+    try:
+        hCovInv.Invert()
+    except:
+        print("Covariance matrix not invertible,chi2_unf set to -1")
+        chi2_unf = -1.
+
+    if not chi2_unf ==-1.:
+        if isNom:
+            for nrow in range(1,hresult.GetNbinsX()+1):
+                for ncol in range(1,hresult.GetNbinsX()+1):
+                    if nrow in exclude_bt_bin or ncol in exclude_bt_bin:
+                        continue
+                    try:
+                        chi2_unf+= (hresult.GetBinContent(nrow)-hTrue.GetBinContent(nrow))*(hresult.GetBinContent(ncol)-hTrue.GetBinContent(ncol))*hCovInv(nrow-1,ncol-1) #different indexing
+                    except ZeroDivisionError:
+                        print("Zero division, chi2_unf set to inf")
+                        chi2_unf = float('inf')
+                        break
     if isNom:
         print("Channel %s for variable %s, chi2_smear is %s, chi2_unf is %s"%(chan,varNames[varName],chi2_smear,chi2_unf))
-        print("chi2_smear - chi2_unf is %s"%(chi2_smear-chi2_unf))
+        #print("chi2_smear - chi2_unf is %s"%(chi2_smear-chi2_unf))
 
 
     #hOut.SetDirectory(0)
@@ -1813,8 +1846,9 @@ if args['test']:
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists20Dec2021_ZZ4l2017_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists17May2021_ZZ4l2017_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Hists07Jun2020-ZZ4l2017_Moriond.root","update")
-    elif analysis=="ZZ4l2018": 
-        fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange18_full.root","update")
+    elif analysis=="ZZ4l2018":
+        fUse = ROOT.TFile("SystGenFiles/HEM1516.root","update") 
+        #fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange18_full.root","update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists02Feb2022_ZZ4l2018_MVA_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Syst_qqZZNewMCadded_Hists18Oct2021-ZZ4l2018_MVA.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Syst_qqZZNewMCadded_Hists30Aug2021-ZZ4l2018_MVA.root","update") #Most recent before jet syst and pdf/scale syst
