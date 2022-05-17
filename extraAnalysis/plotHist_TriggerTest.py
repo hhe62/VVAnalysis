@@ -22,8 +22,9 @@ def checkZeroBin(hist,label,histn):
     for i in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(i)==0.:
             print("WARNING: %s contains 0 in bin %s"%(label,i))
-            histn.SetBinContent(i,0.)
-            hist.SetBinContent(i,0.1)
+            if not histn.GetBinContent(i) == 0.:
+                raise Exception('Zero denominator with nonzero numerator!')
+            hist.SetBinContent(i,0.001)
         if hist.GetBinContent(i)<0.:
             print("WARNING: %s contains negative value in bin %s"%(label,i))
 
@@ -49,22 +50,42 @@ print("Plotting samples:",samples)
 print("=============================================================")
 
 
-suffix = "_"+sys.argv[3].replace(',','_')
-if 'Extra4eCut' in sys.argv[1]:
+suffix = "_"+sys.argv[3].replace(',','_') #name by format
+if 'Extra4eCut' in sys.argv[1]: 
     suffix = suffix+'_4eCut'
+if '2e' in sys.argv[1]:
+    suffix = suffix+'_2eCut'
+
 colors = [3,2] if len(samples) ==2 else [3]
 markers = [1,1] if len(samples) ==2 else [1]
 binnings = [7.,10.,15.,20.,30.,50.,100.,200.]
 varstr="LepPt1Full LepPt2Full LepPt3Full LepPt4Full LepPt1 LepPt2 LepPt3 LepPt4"
-varlist = varstr.split(' ')
+varstr2="e1PtSortedFull e2PtSortedFull e1PtSorted e2PtSorted"
+
+
+if 'dataMC' in samples or 'AllData' in samples: #name by format
+    varlist = varstr2.split(' ')
+else:
+    varlist = varstr.split(' ')
+
 #varlist=["nJets"]
 for var in varlist:
+    print("=======%s=========="%var)
     prettyVar = "Lepton%s p_{T} [GeV]"%(var.replace("LepPt","").replace("Full",""))
-
+    if 'e1' in var or 'e2' in var: #name by format
+        prettyVar = prettyVar.replace('Leptone','Electron').replace('PtSorted','')
     fnames=[sys.argv[1],sys.argv[2]] #first numerator, then denominator
     labels=[sname for sname in samples]
     hists=[]
-    unfname='%s_eeee'%var
+
+    #name by format
+    if not 'AllData' in samples:
+        unfname=['%s_eeee'%var]
+    else:
+        unfname=['%s_eemm'%var,'%s_mmee'%var]
+   
+
+    
     num = 0.
     den = 0.
 
@@ -72,15 +93,16 @@ for var in varlist:
     fb=r.TFile(fnames[1])
     r.SetOwnership(fa,False)
     r.SetOwnership(fb,False)
-    sumweights_hist = fa.Get(str("/".join([samples[0], "sumweights"])))
-    sumweights_hist2 = fb.Get(str("/".join([samples[0], "sumweights"])))
+    sumweights_hist = fa.Get(str("/".join([samples[0], "sumweights"]))) #provided first hist is not data
+    #sumweights_hist2 = fb.Get(str("/".join([samples[0], "sumweights"])))
     
     r.SetOwnership(sumweights_hist, False)
     totWgt = sumweights_hist.Integral(0,sumweights_hist.GetNbinsX()+1)
-    totWgt2 = sumweights_hist2.Integral(0,sumweights_hist.GetNbinsX()+1)
-    assert totWgt == totWgt2
-    print("==========Total Weight ===============")
-    print(totWgt,totWgt2)
+    #totWgt2 = sumweights_hist2.Integral(0,sumweights_hist.GetNbinsX()+1)
+    #assert totWgt == totWgt2
+
+    #print("==========Total Weight ===============")
+    #print(totWgt,totWgt2)
     if 'zz4l-amcatnlo' in samples:
         xsec = 1.218
         kfac = 1.0835
@@ -92,9 +114,19 @@ for var in varlist:
     factor = xsec*kfac*lumi/totWgt
     
     for i in range(len(samples)):
-        hunfa = fa.Get(samples[i]+"/"+unfname).Clone()
-        hunfb = fb.Get(samples[i]+"/"+unfname).Clone()
-      
+        if len(unfname) ==1:
+            hunfa = fa.Get(samples[i]+"/"+unfname[0]).Clone()
+            hunfb = fb.Get(samples[i]+"/"+unfname[0]).Clone()
+        else:
+            #pdb.set_trace()
+            hunfa = fa.Get(samples[i]+"/"+unfname[0]).Clone()
+            htmpa = fa.Get(samples[i]+"/"+unfname[1]).Clone()
+            hunfa.Add(htmpa)
+
+            hunfb = fb.Get(samples[i]+"/"+unfname[0]).Clone()
+            htmpb = fb.Get(samples[i]+"/"+unfname[1]).Clone()
+            hunfb.Add(htmpb)
+
         hunfa = rebin(hunfa,binnings)
         hunfb = rebin(hunfb,binnings)
         checkZeroBin(hunfb, 'denominator',hunfa)
@@ -105,9 +137,9 @@ for var in varlist:
         hunf_amb.Add(hunfb,-1)
         if i==0:
             num = hunfa.Integral(1,hunf_amb.GetNbinsX())*factor #only take amcnlo numerator and denominator
-            print([hunfa.GetBinContent(j)*factor for j in range(1,hunfa.GetNbinsX()+1)])
+            print([round(hunfa.GetBinContent(j)*factor,3) for j in range(1,hunfa.GetNbinsX()+1)])
             den = hunfb.Integral(1,hunf_amb.GetNbinsX())*factor
-            print([hunfb.GetBinContent(j)*factor for j in range(1,hunfb.GetNbinsX()+1)])
+            print([round(hunfb.GetBinContent(j)*factor,3) for j in range(1,hunfb.GetNbinsX()+1)])
         hists.append(hunf_a_b) #append in the orders of labels
     
 
