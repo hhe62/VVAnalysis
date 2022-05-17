@@ -17,8 +17,8 @@ def getTextBox(x,y,axisLabel,size=0.2,rotated=False):
 def checkZeroBin(hist,label,histn):
     contents =[hist.GetBinContent(i) for i in range(1,hist.GetNbinsX()+1)]
     contentsn =[histn.GetBinContent(i) for i in range(1,histn.GetNbinsX()+1)]
-    print(contents)
-    print(contentsn)
+    #print(contents)
+    #print(contentsn)
     for i in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(i)==0.:
             print("WARNING: %s contains 0 in bin %s"%(label,i))
@@ -105,8 +105,9 @@ for var in varlist:
         hunf_amb.Add(hunfb,-1)
         if i==0:
             num = hunfa.Integral(1,hunf_amb.GetNbinsX())*factor #only take amcnlo numerator and denominator
+            print([hunfa.GetBinContent(j)*factor for j in range(1,hunfa.GetNbinsX()+1)])
             den = hunfb.Integral(1,hunf_amb.GetNbinsX())*factor
-
+            print([hunfb.GetBinContent(j)*factor for j in range(1,hunfb.GetNbinsX()+1)])
         hists.append(hunf_a_b) #append in the orders of labels
     
 
@@ -125,7 +126,7 @@ for var in varlist:
         maxs.append(hists[i].GetMaximum())
         hists[i].SetTitle("")
         hists[i].GetYaxis().SetTitle("Trig Eff") #yt
-        hists[i].GetYaxis().SetTitleOffset(1.5)
+        hists[i].GetYaxis().SetTitleOffset(1)
         hists[i].GetXaxis().SetTitle(prettyVar)
         hists[i].GetXaxis().SetTitleSize(0.04)
         hists[i].GetXaxis().SetTitleOffset(1.3)
@@ -161,8 +162,8 @@ for var in varlist:
     latex.SetNDC()
     latex.SetTextSize(0.04)
     #if 'nonreg' in sys.argv[1]:
-    textbox_num= getTextBox(0.73,0.35,"num. %s"%round(num,2),0.03)
-    textbox_den= getTextBox(0.73,0.3,"den. %s"%round(den,2),0.03)
+    textbox_num= getTextBox(0.74,0.33,"num. %s"%round(num,2),0.03)
+    textbox_den= getTextBox(0.74,0.28,"den. %s"%round(den,2),0.03)
     if "Full" in var:
         textbox= getTextBox(0.35,0.97,"With 80 GeV < m_{4l}< 110 GeV",0.03)
     else:
@@ -179,5 +180,5 @@ for var in varlist:
     c1.Clear()
     pdfcommand.append("%s/%s_TrigEff.png"%(dirName,var))
 
-pdfcommand.append('%s/TrigEff_plots_%s.pdf'%(dirName,suffix))
+pdfcommand.append('%s/TrigEff_plots%s.pdf'%(dirName,suffix))
 subprocess.call(pdfcommand)
