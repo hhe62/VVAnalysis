@@ -1595,13 +1595,17 @@ def _sumUncertainties(errDict,varName):
 
     return hUncUp, hUncDn
 
+_errfolder = ("%s"%(datetime.datetime.now())).replace(" ", '-').replace(".","-").replace(":","-")
+os.mkdir(_errfolder)
 _sumUncertainties_info_count=0 # counter used to distinguish histograms to suppress warning message
 def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above but used to printout info
     global _sumUncertainties_info_count
     _sumUncertainties_info_count +=1
     year = analysis[4:]
     systSum = {}
-    ferrinfo=open("ErrorInfo_%s%s.log"%(varName,chan),'w')
+    
+    
+    ferrinfo=open(_errfolder+"/"+"ErrorInfo_%s%s.log"%(varName,chan),'w')
     ferrinfo.write("Var: %s \n"%varName)
     tmparea0= hUnf.Integral(1,hUnf.GetNbinsX()) #used for shorthand
     tmparea = tmparea0 #used to multiply the unc to cancel the division in plotUnfolded script to reduce code modification
@@ -1652,14 +1656,18 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
     print("Current Unf: ",[hUnf.GetBinContent(x) for x in range(1,hUnf.GetNbinsX()+1)])
     print("Current stat error: ",[hUnf.GetBinError(x) for x in range(1,hUnf.GetNbinsX()+1)])
     for i,sys in enumerate(sysList):
+        ferrinfo.write("Source Up %s:%s\n"%(sys,[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)]))
+        ferrinfo.write("Source Dn %s:%s\n"%(sys,[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)]))
         print("Current systematic: ",sys)
         print("Current UncUp: ",[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)])
         print("Current UncDn: ",[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)])
+    ferrinfo.write("Source Stat unc:%s\n"%([hUnf.GetBinError(x)/tmparea3 for x in range(1,hUnf.GetNbinsX()+1)]))
     LumiUp = errDict['Up']['generator'] #lumi ->generator??
     LumiDn = errDict['Down']['generator']
     #print "GeneratorUp: ",LumiUp.Integral()
     #print "GeneratorDn: ",LumiDn.Integral()
     
+    pdfbincontent = []
     for i in range(1,hUncUp.GetNbinsX()+1):
         if norm:# divided by normalized height in that bin to get the portion of shape change, then weighted by bin width for averaging
             #extraNfac = 1.0/(hUnf.GetBinContent(i)/tmparea0)*hUnf.GetBinWidth(i)/totalbw
@@ -1695,6 +1703,7 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
         totUncUp = math.sqrt(totUncUp)
         totUncDn = math.sqrt(totUncDn)
         PS_sum = math.sqrt(PS_sum)
+        pdfbincontent.append(PS_sum)
         systSum['pdf']['Up'] += PS_sum*extraNfac
         systSum['pdf']['Down'] += PS_sum*extraNfac
         ferrinfo.write("Syst: PDF (not alpha_s) Value:%s \n"%PS_sum)
@@ -1722,7 +1731,7 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
         hUncDn.SetBinContent(i,totUncDn*tmparea)
     #commented_print("hUncUp: ",hUncUp,"",hUncUp.Integral()) 
     #commented_print("hUncDown: ",hUncDn,"",hUncDn.Integral())
-
+    ferrinfo.write("Source pdf unc:%s\n"%(pdfbincontent))
     ferrinfo.write("======================\n")
     ferrinfo.write("Error Summary \n")
     sumportup = 0.
