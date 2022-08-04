@@ -1595,7 +1595,7 @@ def _sumUncertainties(errDict,varName):
 
     return hUncUp, hUncDn
 
-_errfolder = ("%s"%(datetime.datetime.now())).replace(" ", '-').replace(".","-").replace(":","-")
+_errfolder = "ErrorLog_%s"%(str(datetime.datetime.now()).split(" ")[0]) #replace(" ", '-').replace(".","-").replace(":","-")
 os.mkdir(_errfolder)
 _sumUncertainties_info_count=0 # counter used to distinguish histograms to suppress warning message
 def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above but used to printout info
@@ -1656,8 +1656,9 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
     print("Current Unf: ",[hUnf.GetBinContent(x) for x in range(1,hUnf.GetNbinsX()+1)])
     print("Current stat error: ",[hUnf.GetBinError(x) for x in range(1,hUnf.GetNbinsX()+1)])
     for i,sys in enumerate(sysList):
-        ferrinfo.write("Source Up %s:%s\n"%(sys,[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)]))
-        ferrinfo.write("Source Dn %s:%s\n"%(sys,[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)]))
+        if not 'PS' in sys:
+            ferrinfo.write("Source Up %s:%s\n"%(sys,[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)]))
+            ferrinfo.write("Source Dn %s:%s\n"%(sys,[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)]))
         print("Current systematic: ",sys)
         print("Current UncUp: ",[UncUpHistos[i].GetBinContent(x) for x in range(1,UncUpHistos[i].GetNbinsX()+1)])
         print("Current UncDn: ",[UncDnHistos[i].GetBinContent(x) for x in range(1,UncDnHistos[i].GetNbinsX()+1)])
