@@ -1596,7 +1596,8 @@ def _sumUncertainties(errDict,varName):
     return hUncUp, hUncDn
 
 _errfolder = "ErrorLog_%s"%(str(datetime.datetime.now()).split(" ")[0]) #replace(" ", '-').replace(".","-").replace(":","-")
-os.mkdir(_errfolder)
+if not os.path.isdir(_errfolder):
+    os.mkdir(_errfolder)
 _sumUncertainties_info_count=0 # counter used to distinguish histograms to suppress warning message
 def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above but used to printout info
     global _sumUncertainties_info_count
@@ -1608,6 +1609,7 @@ def _sumUncertainties_info(norm,errDict,varName,hUnf,chan=''): #same as above bu
     ferrinfo=open(_errfolder+"/"+"ErrorInfo_%s%s.log"%(varName,chan),'w')
     ferrinfo.write("Var: %s \n"%varName)
     tmparea0= hUnf.Integral(1,hUnf.GetNbinsX()) #used for shorthand
+    ferrinfo.write("Area: %s \n"%tmparea0)
     tmparea = tmparea0 #used to multiply the unc to cancel the division in plotUnfolded script to reduce code modification
     tmparea2 = tmparea0 # This is used to calculate the portion of error
     tmparea3 = tmparea0 # used to normalize stat unc for printout only
