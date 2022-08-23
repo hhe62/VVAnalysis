@@ -1217,8 +1217,10 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
         c.Print("DebugPlots/resp{}.root".format(_printCounter))
         _printCounter += 1
 
-    #calculate chi-2 in smeared spaece for bottom-line test
+    #calculate chi-2 in smeared space for bottom-line test
     chi2_smear = 0.
+    chi2_goodness = 0.
+    mResp = response.Mresponse()
     exclude_bt_bin = []
     if isNom:
         
@@ -1309,6 +1311,20 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
     except:
         print("Covariance matrix not invertible,chi2_unf set to -1")
         chi2_unf = -1.
+
+    if isNom:
+        for nrow in range(1,hresult.GetNbinsX()+1):
+            tmpSmear = 0.
+            for ncol in range(1,hresult.GetNbinsX()+1):
+                tmpSmear += mResp(nrow-1,ncol-1)* hresult.GetBinContent(ncol)
+            try:
+                chi2_goodness += (hData.GetBinContent(nrow)-hBkg.GetBinContent(nrow)-tmpSmear)**2/tmpSmear
+            except ZeroDivisionError:
+                print("Zero division, chi2_goodness set to inf")
+                chi2_goodness = float('inf')
+                break
+        print("Channel %s for variable %s, chi2_goodness is %s"%(chan,varNames[varName],chi2_goodness))
+        
 
     if not chi2_unf ==-1.:
         if isNom:
