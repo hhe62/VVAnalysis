@@ -15,6 +15,10 @@ def sumListAbs(l):
     al = [abs(x) for x in l]
     return sum(al)
 
+def sqrt_sum(l1,l2):
+    l = [(x**2 + y**2)**0.5 for (x,y) in zip(l1,l2)]
+    return l
+
 def analyzeYear(var,foldername,froot=None):
     dict = {}
     area = 0.
@@ -89,6 +93,8 @@ for var in vars:
     fn_corr = []
     fn_uncorr = []
     var_jes = 0.
+    tot_corrUp,tot_uncorrUp = [],[]
+    tot_corrDn,tot_uncorrDn = [],[]
     for sys in totDic[var]["18"].keys():
 
         if sys == "stat" or sys == "pdf":
@@ -98,6 +104,24 @@ for var in vars:
             upcorr,upuncorr = combineYears(up16,up17,up18,w16,w17,w18)
             unc_corr = sumListAbs(upcorr)
             unc_uncorr = sumListAbs(upuncorr)
+
+            if tot_corrUp == []:
+                if sys == "stat":
+                    tot_corrUp,tot_uncorrUp = upuncorr,upuncorr
+                    tot_corrDn,tot_uncorrDn = upuncorr,upuncorr
+                else:
+                    tot_corrUp,tot_uncorrUp = upcorr,upcorr
+                    tot_corrDn,tot_uncorrDn = upcorr,upcorr
+
+            else:
+                if sys == "stat":
+                    tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upuncorr),sqrt_sum(tot_uncorrUp,upuncorr)
+                    tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,upuncorr),sqrt_sum(tot_uncorrDn,upuncorr)
+                else:
+                    tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upcorr),sqrt_sum(tot_uncorrUp,upcorr)
+                    tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,upcorr),sqrt_sum(tot_uncorrDn,upcorr)
+
+
 
         else:
             up16 = totDic[var]["16"][sys]["Up"]
@@ -113,18 +137,46 @@ for var in vars:
             unc_corr = max(sumListAbs(upcorr),sumListAbs(dncorr))
             unc_uncorr = max(sumListAbs(upuncorr),sumListAbs(dnuncorr))
 
+            if tot_corrUp == []:
+                if sys == "jes":
+                    tot_corrUp,tot_uncorrUp = upcorr,upuncorr
+                    tot_corrDn,tot_uncorrDn = dncorr,dnuncorr
+                if sys == "jer":
+                    tot_corrUp,tot_uncorrUp = upuncorr,upuncorr
+                    tot_corrDn,tot_uncorrDn = dnuncorr,dnuncorr
+                else:
+                    tot_corrUp,tot_uncorrUp = upcorr,upcorr
+                    tot_corrDn,tot_uncorrDn = dncorr,dncorr
+
+            else:
+                if sys == "jes":
+                    tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upcorr),sqrt_sum(tot_uncorrUp,upuncorr)
+                    tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,dncorr),sqrt_sum(tot_uncorrDn,dnuncorr)
+
+                if sys == "jer":
+                    tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upuncorr),sqrt_sum(tot_uncorrUp,upuncorr)
+                    tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,dnuncorr),sqrt_sum(tot_uncorrDn,dnuncorr)
+
+                else:
+                    tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upcorr),sqrt_sum(tot_uncorrUp,upcorr)
+                    tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,dncorr),sqrt_sum(tot_uncorrDn,dncorr)
+
         fn_sys.append(sys)
         fn_corr.append(unc_corr)
         fn_uncorr.append(unc_uncorr)
         if sys == "jes":
             var_jes = unc_corr
 
-    
+    totunc_corr = max(sumListAbs(tot_corrUp),sumListAbs(tot_corrDn))
+    totunc_uncorr = max(sumListAbs(tot_uncorrUp),sumListAbs(tot_uncorrDn))
+
     fn_corra = np.array(fn_corr)
     ind = (-fn_corra).argsort()
     fn_sys,fn_corr,fn_uncorr = [np.take(x,ind) for x in [fn_sys,fn_corr,fn_uncorr]]
-    dicComb[var] = [fn_sys,fn_corr,fn_uncorr]
-    jes_list.append(var_jes)
+    dicComb[var] = [fn_sys,fn_corr,fn_uncorr,totunc_corr,totunc_uncorr]
+    #jes_list is used to append the quantity used to sort variables
+    jes_list.append(abs(totunc_corr-totunc_uncorr)/totunc_corr)
+    #jes_list.append(var_jes)
 
 jes_lista = np.array(jes_list)
 indjes = (-jes_lista).argsort()
@@ -134,9 +186,12 @@ vars_sort = np.take(vars_sort,indjes)
 for var in vars_sort:
 
     print("====%s==="%var)
-    fn_sys,fn_corr,fn_uncorr = dicComb[var]
+    print("%-10s %-6s uncorr"%(" ","corr"))
+    fn_sys,fn_corr,fn_uncorr,final_corr,final_uncorr = dicComb[var]
     for i in range(0,len(fn_sys)):
-        print("%s %.4f %.4f"%(fn_sys[i],fn_corr[i],fn_uncorr[i]))
+        print("%-10s %.4f %.4f"%(fn_sys[i],fn_corr[i],fn_uncorr[i]))
+    
+    print("Total uncertainty with jes correlated:%.4f uncorrelated:%.4f, relative diff %.4f"%(final_corr,final_uncorr, abs(final_corr-final_uncorr)/final_corr))
 
 
 
