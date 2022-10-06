@@ -353,6 +353,8 @@ void ResponseMatrixMakerBase<T>::setup()
 
       if (year==2016 ||year==2017){genWeight*=L1prefiringWeight;}
 
+      genWeight *= jetPUSFmulfac;
+
       //std::cout<<"genWeight After: "<<genWeight<<std::endl;
 
       // elements needed for event weights
@@ -691,6 +693,7 @@ void ResponseMatrixMakerBase<T>::setCommonBranches(TChain& t, const Vec<Str>& ob
   t.SetBranchAddress("nTruePU", &truePU);
   t.SetBranchAddress("evt", &evt);
   t.SetBranchAddress("genWeight", &genWeight);
+  t.SetBranchAddress("jetPUSFmulfac", &jetPUSFmulfac);
   
     if (year ==2016 || year==2017){
     t.SetBranchAddress("L1prefiringWeight", &L1prefiringWeight);}

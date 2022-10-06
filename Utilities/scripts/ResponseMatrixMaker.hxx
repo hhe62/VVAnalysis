@@ -285,6 +285,7 @@ private:
   unsigned long long evt;
   float genWeight;
   float L1prefiringWeight;
+  float jetPUSFmulfac;
   Vec<float> scaleWeights;
   Vec<float> pdfAndAlphaSWeights;
   UMap<Str, TH1D> puWeightHists;
