@@ -389,12 +389,33 @@ def createPad3(canvas):
     pad3.SetBorderMode(0)
     pad3.SetTopMargin(0)  # joins upper and lower plot
     pad3.SetBottomMargin(0.35)
+    #pad3.SetBottomMargin(0)
     if "Full" in varName:
         pad3.SetLogx()
 
     #pad3.SetGridx()
     #pad3.Draw()
     return pad3
+
+def createPad4(canvas):
+    # Lower ratio plot is pad4
+    canvas.cd()  # returns to main canvas before defining pad4
+    pad4 = ROOT.TPad("pad4", "pad4", 0.01, 0.03, 0.99, 0.20)
+    pad4.Draw()
+    pad4.cd()
+    pad4.SetFillColor(0)
+    pad4.SetFrameLineWidth(3)
+    pad4.SetFrameBorderMode(0)
+    #pad4.SetFrameFillStyle(4000)
+    pad4.SetBorderMode(0)
+    pad4.SetTopMargin(0)  # joins upper and lower plot
+    pad4.SetBottomMargin(0.35)
+    if "Full" in varName:
+        pad4.SetLogx()
+
+    #pad4.SetGridx()
+    #pad4.Draw()
+    return pad4
 
 #rebin histos and take care of overflow bins
 def rebin(hist,varName): #didn't handle error, but this function not actually used
@@ -846,6 +867,46 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         
         MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize,False)
         AltTex = getSigTextBox(0.15,0.85,sigLabelAlt,0.11)
+
+
+        include_MiNNLO = False
+        if include_MiNNLO:
+            #Fourth pad
+            pad4 = createPad4(c)
+            
+
+            hTrueNNLO = None
+            hTrueNNLONoErrs = hTrueNNLO.Clone() # need central value only to keep ratio uncertainties consistent
+            #nbins=hTrueNoErrs.GetNbinsX()
+            #print("trueNbins: ",nbins)
+
+            #Unfbins=hUnf.GetNbinsX()
+            #print("UnfNbins: ",Unfbins)
+
+            #hTrueNoErrs.SetError(array.array('d',[0.]*nbins))
+            #Starting the ratio proceedure
+            NNLORatio,NNLOline = createRatio(hUnf, hTrueNNLONoErrs)
+            NNLORatioErrorBand = RatioErrorBand(NNLORatio,hUncUp,hUncDn,hTrueNNLONoErrs,varName) 
+            NNLORatioErrorBand.GetYaxis().SetLabelSize(0)
+            NNLORatioErrorBand.GetYaxis().SetTitleSize(0)
+            NNLORatioErrorBand.Draw("a2")
+            NNLORatio.Draw("PE1SAME")
+            #ratioErrorBand.Draw("p")
+            NNLOline.SetLineColor(ROOT.kRed)
+            NNLOline.Draw("same")
+            
+            ratioName_NNLO = "MiNNLO"
+            sigLabelNNLO = "MiNNLO"
+            MCTextNNLO=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_NNLO,bottom_fontsize,False)
+            NNLOTex = getSigTextBox(0.15,0.85,sigLabelNNLO,0.11)
+
+
+
+
+
+
+
+
         #redraw axis
         if "Full" in varName:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510,"G")
