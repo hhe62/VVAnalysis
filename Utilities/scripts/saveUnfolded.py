@@ -1164,6 +1164,7 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
     hSig = hSig.Clone() #reassign local variable
     if specBkg:
         hSig.Add(hBkg)
+    #response = Response(0,hTrue.Clone(),hResponse.Clone())
     response = Response(hSig, hTrue.Clone(), hResponse.Clone()) 
     ROOT.SetOwnership(response,False)
     ROOT.SetOwnership(hData,False)
@@ -1324,7 +1325,7 @@ def getUnfolded(hSig, hBkg, hTrue, hResponse, hData, nIter,withRespAndCov=False,
                 chi2_goodness = float('inf')
                 break
         print("Channel %s for variable %s, chi2_goodness is %s"%(chan,varNames[varName],chi2_goodness))
-        
+        print("number of bins for variable %s is %s"%(varNames[varName],hData.GetNbinsX()))
 
     if not chi2_unf ==-1.:
         if isNom:
@@ -1869,7 +1870,8 @@ if args['test']:
         #fUse = ROOT.TFile("SystGenFiles/Hists25Jun2020-ZZ4l2016_Moriond.root","update") #Note one more recent file is not in the commented list 
         #fUse = ROOT.TFile("SystGenFiles/Hists31Mar2020-ZZ4l2016_Moriond.root","update")
     elif analysis=="ZZ4l2017":
-        fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange17_full.root","update")
+        fUse = ROOT.TFile("SystGenFiles/17reprocessedFull.root")
+        #fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange17_full.root","update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists02Feb2022_ZZ4l2017_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists20Dec2021_ZZ4l2017_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists17May2021_ZZ4l2017_Moriond_fullSyst.root","update")
