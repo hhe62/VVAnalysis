@@ -226,7 +226,7 @@ for key in myvar_dict.keys(): #key is the variable
 varNamesCopy = copy.deepcopy(varNames) #varNames is also defined and used in a function. Just in case, make a copy and put this in the function
 
 def getLumiTextBox():
-    texS = ROOT.TLatex(0.76,0.955, str(args['lumi'])+" fb^{-1} (13 TeV)")
+    texS = ROOT.TLatex(0.76,0.955, str(round(args['lumi'],1))+" fb^{-1} (13 TeV)") #round lumi 36.31, 41.53,59.7
     texS.SetNDC()
     texS.SetTextFont(42)
     texS.SetTextSize(0.030)
@@ -702,7 +702,13 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
             del hTrueFakeShift
 
         # luminosity
-        lumiUnc = 0.023
+        year = analysis[4:]
+        if year=='2018':
+            lumiUnc = 0.025
+        if year=='2017':
+            lumiUnc = 0.023    
+        if year=='2016':
+            lumiUnc = 0.012
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
         for sys, scale in lumiScale.iteritems():
             #print "lumi uncert.",sys
@@ -919,7 +925,8 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
         #print "TotBkgPSHist: ",hBkgPSTotal,", ",hBkgPSTotal.Integral()
         #hSigPSt=rebin(hSigPSt,varName)
         #hBkgPSTotalt=rebin(hBkgPSTotalt,varName)
-        year = analysis[4:]
+        
+        #year = analysis[4:]
         if year=='2018' or year=='2017':
             ind_last = 111
         
