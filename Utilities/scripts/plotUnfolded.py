@@ -275,7 +275,7 @@ def createRatio(h1, h2):
         if(datacontent!=0):
             error = ratiocontent*(math.sqrt(math.pow((dataerror/datacontent),2) + math.pow((stackerror/stackcontent),2)))
         else:
-            error = 2.07 #why 2.07?
+            error = 0. #set to 0 just in case, 0 bin cont shouldn't be drawn with PE1 option #2.07 #why 2.07?
         #print "ratio content: ",ratiocontent
         #print "stat error: ", error
         Ratio.SetBinContent(i,ratiocontent)
