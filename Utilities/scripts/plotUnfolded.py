@@ -771,6 +771,12 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         texS,texS1,texS2=getLumiTextBox()
         sigLabel = "POWHEG+MCFM+Pythia8" #used?
         sigLabelAlt = "MG5_aMC@NLO+MCFM+Pythia8"
+
+        if varName in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+            if varName in ["jetPt[0]","absjetEta[0]"]:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 1 jet",0.04,False)
+            if varName in ["jetPt[1]","absjetEta[1]"]:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 2 jets",0.04,False)
         #if varName=="dphiz1z2" or varName=="drz1z2":
         #    leg = ROOT.TLegend(0.15,0.60,0.15+0.015*len(sigLabelAlt),0.90,"")
         #elif varName=="leppt":
@@ -860,6 +866,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         AltRatioErrorBand.GetYaxis().SetLabelSize(0)
         AltRatioErrorBand.GetYaxis().SetTitleSize(0)
         AltRatioErrorBand.Draw("a2")
+        #if varName == "nJets":
+        #    AltRatio.GetXaxis().SetNdivisions(505)
+        #    AltRatio.GetXaxis().CenterLabels(True)
         AltRatio.Draw("PE1SAME")
         #ratioErrorBand.Draw("p")
         Altline.SetLineColor(ROOT.kRed)
@@ -910,6 +919,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #redraw axis
         if "Full" in varName:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510,"G")
+        elif varName == "nJets":
+            xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),505)
+            xaxis.CenterLabels(True)
         else:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510)
         xaxis.SetTitle(prettyVars[varName]+''+units[varName])
