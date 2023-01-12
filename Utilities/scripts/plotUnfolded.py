@@ -18,6 +18,7 @@ VFloat = Vec('float')
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
+ROOT.gStyle.SetLineWidth(3)
 #channels = ["eeee","eemm","mmmm"]
 channels = []
 def getComLineArgs():
@@ -603,6 +604,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     # Make uncertainties out of the unfolded histos
     ### plot
     hUnf = hUnfolded.Clone()
+    hUnf.SetLineWidth(3)
     hTrue = hTruth.Clone()
     #Alt Signal 
     hTrueAlt = hTruthAlt.Clone()
@@ -865,10 +867,15 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         AltRatioErrorBand = RatioErrorBand(AltRatio,hUncUp,hUncDn,hTrueAltNoErrs,varName) 
         AltRatioErrorBand.GetYaxis().SetLabelSize(0)
         AltRatioErrorBand.GetYaxis().SetTitleSize(0)
+
+        #Currently this is the line that will change bottom tick length
+        #AltRatioErrorBand.GetXaxis().SetTickLength(0.1)
+        
         AltRatioErrorBand.Draw("a2")
         #if varName == "nJets":
         #    AltRatio.GetXaxis().SetNdivisions(505)
         #    AltRatio.GetXaxis().CenterLabels(True)
+        
         AltRatio.Draw("PE1SAME")
         #ratioErrorBand.Draw("p")
         Altline.SetLineColor(ROOT.kRed)
@@ -917,11 +924,17 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
 
         #redraw axis
-        if "Full" in varName:
+        if "Full" in varName and "Mass" in varName:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510,"G")
+        
+            xaxis.SetMoreLogLabels(True)
+            xaxis.SetTickLength(0.07)
+            #xaxis.SetLabelSize(0.025)
+            xaxis.ChangeLabel(1,-1,0.,-1,-1,-1,"")
         elif varName == "nJets":
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),505)
             xaxis.CenterLabels(True)
+            xaxis.ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3")
         else:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510)
         xaxis.SetTitle(prettyVars[varName]+''+units[varName])
@@ -939,7 +952,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #xaxis.ChangeLabel(10,1.0)
         xaxis.SetLabelFont(42)
         xaxis.SetLabelOffset(0.03)
-        xaxis.SetLabelSize(0.162)
+        #xaxis.SetTickLength(0.1)
+        if "Full" in varName and "Mass" in varName:
+            xaxis.SetLabelSize(0.1)
+        else:
+            xaxis.SetLabelSize(0.162)
         xaxis.SetTitleFont(42)
         xaxis.SetTitleSize(0.18)
         xaxis.SetTitleOffset(1.2)
