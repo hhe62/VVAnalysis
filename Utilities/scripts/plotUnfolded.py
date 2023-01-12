@@ -389,7 +389,7 @@ def createPad3(canvas):
     #pad3.SetFrameFillStyle(4000)
     pad3.SetBorderMode(0)
     pad3.SetTopMargin(0)  # joins upper and lower plot
-    pad3.SetBottomMargin(0.35)
+    pad3.SetBottomMargin(0.45)
     #pad3.SetBottomMargin(0)
     if "Full" in varName:
         pad3.SetLogx()
