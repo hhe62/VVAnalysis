@@ -504,7 +504,7 @@ def RatioErrorBand(Ratio,hUncUp,hUncDn,hTrueNoErrs,varName):
             #print "TotErrorUp: ",errorUp, "","TotErrorDn: ",errorDn
             ratioGraph.SetPointEYhigh(i-1, errorUp)
             ratioGraph.SetPointEYlow(i-1, errorDn)
-        ratioGraph.SetFillColorAlpha(1,0.5)
+        ratioGraph.SetFillColorAlpha(1,0.3)
         ratioGraph.SetFillStyle(3001)
         ratioGraph.GetXaxis().SetLabelSize(0)
         ratioGraph.GetXaxis().SetTitleSize(0)
