@@ -186,6 +186,8 @@ for var, prettyVar in prettyVars.iteritems():
 
     _xTitle[var] = xt
     _yTitle[var] = yt
+    if var == "dEtajj":
+        _yTitle[var] = _yTitleTemp.format(xvar="\\vert \\Delta \\eta (j_1,j_2) \\vert",prefix='\\frac{1}{\\sigma_{\\text{fid}}}', units='')
     _yTitleNoNorm[var] = ytnn
 
 # list of variables not counting systematic shifts
@@ -434,7 +436,7 @@ def rebin(hist,varName): #didn't handle error, but this function not actually us
     return hist
 
 def getLumiTextBox():
-    texS = ROOT.TLatex(0.68,0.965, str(int(args['lumi']))+" fb^{-1} (13 TeV)")
+    texS = ROOT.TLatex(0.68,0.965, str(int(round(args['lumi'])))+" fb^{-1} (13 TeV)")
     texS.SetNDC()
     texS.SetTextFont(42)
     texS.SetTextSize(0.045)
@@ -954,7 +956,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         xaxis.SetLabelOffset(0.03)
         #xaxis.SetTickLength(0.1)
         if "Full" in varName and "Mass" in varName:
-            xaxis.SetLabelSize(0.1)
+            xaxis.SetLabelSize(0.12)
         else:
             xaxis.SetLabelSize(0.162)
         xaxis.SetTitleFont(42)

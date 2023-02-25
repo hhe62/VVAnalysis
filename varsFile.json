@@ -131,7 +131,7 @@
         ], 
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
-        "prettyVars": "#Delta#eta(j_{1}, j_{2})", 
+        "prettyVars": "|#Delta#eta(j_{1}, j_{2})|", 
         "bottom_xy": [
             0.2, 
             0.91
@@ -297,7 +297,7 @@
         ], 
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
-        "prettyVars": "Di-jet Mass", 
+        "prettyVars": "Dijet Mass", 
         "bottom_xy": [
             0.2, 
             0.91

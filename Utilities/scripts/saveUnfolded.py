@@ -1871,7 +1871,8 @@ sigSampleDic.update(AltsigSampleDic)
 if args['test']:
     sigSamplesPath={}
     if analysis=="ZZ4l2016":
-        fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange16.root","update") 
+        fUse = ROOT.TFile("SystGenFiles/16reprocessedFull.root")
+        #fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange16.root","update") 
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists02Feb2022_ZZ4l2016_Moriond_fullSyst.root","update") 
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists15Dec2021_ZZ4l2016_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Hists25Jun2020-ZZ4l2016_Moriond.root","update") #Note one more recent file is not in the commented list 
@@ -1884,8 +1885,9 @@ if args['test']:
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists17May2021_ZZ4l2017_Moriond_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Hists07Jun2020-ZZ4l2017_Moriond.root","update")
     elif analysis=="ZZ4l2018":
+        fUse = ROOT.TFile("SystGenFiles/18reprocessedFull_recovered150.root")
         #fUse = ROOT.TFile("SystGenFiles/HEM1516.root","update") 
-        fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange18_full.root")#,"update")
+        #fUse = ROOT.TFile("SystGenFiles/Fullsys_fullrange18_full.root")#,"update")
         #fUse = ROOT.TFile("SystGenFiles/For_unfolding_Hists02Feb2022_ZZ4l2018_MVA_fullSyst.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Syst_qqZZNewMCadded_Hists18Oct2021-ZZ4l2018_MVA.root","update")
         #fUse = ROOT.TFile("SystGenFiles/Syst_qqZZNewMCadded_Hists30Aug2021-ZZ4l2018_MVA.root","update") #Most recent before jet syst and pdf/scale syst
