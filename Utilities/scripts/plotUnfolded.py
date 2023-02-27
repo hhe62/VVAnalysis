@@ -14,7 +14,7 @@ from ROOT import vector as Vec
 
 VFloat = Vec('float')
 #from PlotTools import PlotStyle as Style, pdfViaTex
-
+include_MiNNLO = True
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
@@ -311,7 +311,7 @@ def createRatio(h1, h2):
 
     return Ratio,line
 
-def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords):
+def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=None):
     legend = ROOT.TLegend(coords[0], coords[1], coords[2], coords[3])
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
@@ -329,6 +329,8 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords):
     legend.AddEntry(error_hist, "Stat. #oplus syst. unc.", "f")
     legend.AddEntry(hTrue, sigLabel,"lep")
     legend.AddEntry(hAltTrue, sigLabelAlt,"lep")
+    if include_MiNNLO:
+        legend.AddEntry(hTrueNNLO, "MiNNLO","lep")    
 
     #legend.AddEntry(hTrue, sigLabel,"lf")
     #legend.AddEntry(hAltTrue, sigLabelAlt,"l")
@@ -361,7 +363,10 @@ def createPad2(canvas):
     # Lower ratio plot is pad2
     canvas.cd()  # returns to main canvas before defining pad2
     canvas.GetListOfPrimitives().SetOwner(True)
-    pad2 = ROOT.TPad("pad2", "pad2", 0.01, 0.20, 0.99, 0.33)
+    if not include_MiNNLO:
+        pad2 = ROOT.TPad("pad2", "pad2", 0.01, 0.20, 0.99, 0.33)
+    else:
+        pad2 = ROOT.TPad("pad2", "pad2", 0.01, 0.25, 0.99, 0.34)
     pad2.Draw()
     pad2.cd()
     pad2.SetFillColor(0)
@@ -382,16 +387,24 @@ def createPad2(canvas):
 def createPad3(canvas):
     # Lower ratio plot is pad3
     canvas.cd()  # returns to main canvas before defining pad3
-    pad3 = ROOT.TPad("pad3", "pad3", 0.01, 0.03, 0.99, 0.20)
+    if not include_MiNNLO:
+        pad3 = ROOT.TPad("pad3", "pad3", 0.01, 0.03, 0.99, 0.20)
+    else:
+        pad3 = ROOT.TPad("pad3", "pad3", 0.01, 0.16, 0.99, 0.25)
     pad3.Draw()
     pad3.cd()
     pad3.SetFillColor(0)
     pad3.SetFrameLineWidth(3)
     pad3.SetFrameBorderMode(0)
     #pad3.SetFrameFillStyle(4000)
-    pad3.SetBorderMode(0)
+    if not include_MiNNLO:
+        pad3.SetBorderMode(0)
+        pad3.SetBottomMargin(0.45)
+    else:
+        pad3.SetBorderMode(1)
+        pad3.SetBottomMargin(0)
     pad3.SetTopMargin(0)  # joins upper and lower plot
-    pad3.SetBottomMargin(0.45)
+    
     #pad3.SetBottomMargin(0)
     if "Full" in varName:
         pad3.SetLogx()
@@ -400,10 +413,10 @@ def createPad3(canvas):
     #pad3.Draw()
     return pad3
 
-def createPad4(canvas):
+def createPad4(canvas): #For MiNNLO
     # Lower ratio plot is pad4
     canvas.cd()  # returns to main canvas before defining pad4
-    pad4 = ROOT.TPad("pad4", "pad4", 0.01, 0.03, 0.99, 0.20)
+    pad4 = ROOT.TPad("pad4", "pad4", 0.01, 0.01, 0.99, 0.16)
     pad4.Draw()
     pad4.cd()
     pad4.SetFillColor(0)
@@ -412,7 +425,7 @@ def createPad4(canvas):
     #pad4.SetFrameFillStyle(4000)
     pad4.SetBorderMode(0)
     pad4.SetTopMargin(0)  # joins upper and lower plot
-    pad4.SetBottomMargin(0.35)
+    pad4.SetBottomMargin(0.45)
     if "Full" in varName:
         pad4.SetLogx()
 
@@ -587,8 +600,12 @@ def MainErrorBand(hMain,hUncUp,hUncDn,varName,norm,normFb):
             #MainGraph.SetMinimum(0.5*(hMain.GetMinimum()))
         return MainGraph
 
-def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,lumi,unfoldDir):
-
+def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,lumi,unfoldDir,hTruthNNLO=None):
+    global include_MiNNLO
+    reset_include_MiNNLO = False
+    if include_MiNNLO and not hTruthNNLO:
+        include_MiNNLO = False
+        reset_include_MiNNLO = True
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
     
@@ -611,6 +628,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     #Alt Signal 
     hTrueAlt = hTruthAlt.Clone()
     hTrueLeg = hTruthAlt.Clone() #doesn't seem to get used
+
+    if include_MiNNLO:
+        hTrueNNLO = hTruthNNLO.Clone()
     #lumi provided already in fb-1
     lumifb = lumi
 
@@ -643,11 +663,19 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hTrueAlt.SetFillStyle(0)#hollow
         hTrueAlt.SetLineColor(ROOT.kRed)
         hTrueAlt.SetMarkerColor(ROOT.kRed)
+        if include_MiNNLO:
+            hTrueNNLO.SetFillColor(8)
+            hTrueNNLO.SetLineStyle(10)#dashes
+            hTrueNNLO.SetFillStyle(0)#hollow
+            hTrueNNLO.SetLineColor(ROOT.kViolet)
+            hTrueNNLO.SetMarkerColor(ROOT.kViolet)
         print "Total Unf Data Integral",hUnf.Integral()
         Truthmaximum = hTrue.GetMaximum()
         Truthmaximum2 = hTrueAlt.GetMaximum()
         hTrue.SetLineWidth(4*hTrue.GetLineWidth())
         hTrueAlt.SetLineWidth(4*hTrueAlt.GetLineWidth())
+        if include_MiNNLO:
+            hTrueNNLO.SetLineWidth(4*hTrueNNLO.GetLineWidth())
 
         if not norm and normFb:
             print "Inclusive fiducial cross section = {} fb".format(hUnf.Integral(1,hUnf.GetNbinsX()))
@@ -675,11 +703,17 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #Alt Signal
             AltTrueInt = hTrueAlt.Integral(1,hTrueAlt.GetNbinsX())
             hTrueAlt.Scale(1.0/AltTrueInt)
+
+            if include_MiNNLO:
+                NNLOTrueInt = hTrueNNLO.Integral(1,hTrueNNLO.GetNbinsX())
+                hTrueNNLO.Scale(1.0/NNLOTrueInt)
         elif normFb:
             hTrue.Scale(1.0/lumifb)
             #hTrueUncUp /= lumifb
             #hTrueUncDn /= lumifb
             hTrueAlt.Scale(1.0/lumifb)
+            if include_MiNNLO:
+                hTrueNNLO.Scale(1.0/lumifb)
         else:
             print "no special normalization"
 
@@ -690,6 +724,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #normalizeBins(hTrueUncUp)
             #normalizeBins(hTrueUncDn)
             normalizeBins(hTrueAlt)
+            if include_MiNNLO:
+                normalizeBins(hTrueNNLO)
 
         #Don't know why draw twice. Commented the following two lines.
         #hTrue.Draw("HIST")
@@ -715,6 +751,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hTrueAlt.GetXaxis().SetTitleSize(0)
         hTrueAlt.Draw("E1 SAME") #drawing second time, for updating?
         hTrue.Draw("E1 SAME") #("PE1SAME")
+        if include_MiNNLO:
+            hTrueNNLO.GetXaxis().SetLabelSize(0)
+            hTrueNNLO.GetXaxis().SetTitleSize(0)
+            hTrueNNLO.Draw("E1 SAME") 
 
 #        hTrueAlt.Draw("HISTSAME") #drawing second time, for updating?
 #        hTrue.Draw("HISTSAME")
@@ -729,16 +769,25 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hUnf.Draw("PE1SAME")
 
         axismaximum = max([hUnf.GetMaximum(),hTrue.GetMaximum(),hTrueAlt.GetMaximum(),UnfErrBand.GetMaximum()])
+        if include_MiNNLO:
+            axismaximum = max(axismaximum,hTrueNNLO.GetMaximum())
+            
         
         hTrue.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         hTrueAlt.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
+        if include_MiNNLO:
+            hTrueNNLO.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         hUnf.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         UnfErrBand.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         
         axisminimum = min([hUnf.GetMinimum(),hTrue.GetMinimum(),hTrueAlt.GetMinimum(),UnfErrBand.GetMinimum()])
+        if include_MiNNLO:
+            axisminimum = min(axisminimum,hTrueNNLO.GetMinimum())
         if not ymin_fac_extra==1.:
             hTrue.SetMinimum(axisminimum*ymin_fac_extra) #args["scaleymin"] is set to 0.3, not used here
             hTrueAlt.SetMinimum(axisminimum*ymin_fac_extra)
+            if include_MiNNLO:
+                hTrueNNLO.SetMinimum(axisminimum*ymin_fac_extra)
             hUnf.SetMinimum(axisminimum*ymin_fac_extra)
             UnfErrBand.SetMinimum(axisminimum*ymin_fac_extra)
       
@@ -770,7 +819,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         ymax = 0.45 if varName=="leppt" else 0.915
         ycoords = [ymax, ymax - 0.08*unique_entries*args['scalelegy']]
         coords = [xcoords[0]-0.1, ycoords[0], xcoords[1], ycoords[1]] #extended legend frame
-        legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords)
+        if not include_MiNNLO:
+            legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords)
+        else:
+            legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords,hTrueNNLO)
         legend.Draw()
         texS,texS1,texS2=getLumiTextBox()
         sigLabel = "POWHEG+MCFM+Pythia8" #used?
@@ -887,13 +939,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         AltTex = getSigTextBox(0.15,0.85,sigLabelAlt,0.11)
 
 
-        include_MiNNLO = False
+        
         if include_MiNNLO:
             #Fourth pad
             pad4 = createPad4(c)
             
-
-            hTrueNNLO = None
             hTrueNNLONoErrs = hTrueNNLO.Clone() # need central value only to keep ratio uncertainties consistent
             #nbins=hTrueNoErrs.GetNbinsX()
             #print("trueNbins: ",nbins)
@@ -910,7 +960,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLORatioErrorBand.Draw("a2")
             NNLORatio.Draw("PE1SAME")
             #ratioErrorBand.Draw("p")
-            NNLOline.SetLineColor(ROOT.kRed)
+            NNLOline.SetLineColor(ROOT.kViolet)
             NNLOline.Draw("same")
             
             ratioName_NNLO = "MiNNLO"
@@ -991,6 +1041,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env={})
         os.remove(output_name+".eps")
         del c
+
+    if reset_include_MiNNLO:
+        include_MiNNLO = True
 def mkdir(plotDir):
     for outdir in [plotDir]:
         try:
@@ -1073,6 +1126,8 @@ for varName in runVariables:
         hUnfTot = fUse.Get("tot_"+varName+"_unf") 
         hTrueTot = fUse.Get("tot_"+varName+"_true")
         hTrueAltTot = fUse.Get("tot_"+varName+"_trueAlt") 
+        if include_MiNNLO:
+            hTrueNNLOTot = fUse.Get("tot_"+varName+"_trueNNLO")    
         hTotUncUp = fUse.Get("tot_"+varName+"_totUncUp")
         hTotUncDn = fUse.Get("tot_"+varName+"_totUncDown") 
         UnfoldOutDir=UnfoldDir+"/"+"tot"+"/plots"
@@ -1080,7 +1135,10 @@ for varName in runVariables:
             UnfoldOutDirs["tot"]=UnfoldOutDir
         if not os.path.exists(UnfoldOutDir):
             mkdir(UnfoldOutDir)
-        generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir)
+        if not include_MiNNLO:
+            generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir)
+        else:
+            generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir,hTrueNNLOTot)
 #Show plots nicely on my webpages
 for cat in ["tot"]:   
 #for cat in ["eeee","eemm","mmmm","tot"]:   
