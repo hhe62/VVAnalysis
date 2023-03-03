@@ -15,6 +15,7 @@ from ROOT import vector as Vec
 VFloat = Vec('float')
 #from PlotTools import PlotStyle as Style, pdfViaTex
 include_MiNNLO = True
+EW_corr = True
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
@@ -298,7 +299,7 @@ def createRatio(h1, h2):
     line = ROOT.TLine(h1.GetXaxis().GetXmin(), 1.,h1.GetXaxis().GetXmax(), 1.)
     line.SetLineStyle(7)
 
-    Ratio.GetYaxis().SetLabelSize(0.14)
+    Ratio.GetYaxis().SetLabelSize(0.14) #0.14
     Ratio.GetYaxis().SetTitleSize(0.16)
     Ratio.GetYaxis().SetLabelFont(42)
     Ratio.GetYaxis().SetTitleFont(42)
@@ -311,7 +312,7 @@ def createRatio(h1, h2):
 
     return Ratio,line
 
-def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=None):
+def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=None,hTrueEWC = None):
     legend = ROOT.TLegend(coords[0], coords[1], coords[2], coords[3])
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
@@ -330,7 +331,9 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=Non
     legend.AddEntry(hTrue, sigLabel,"lep")
     legend.AddEntry(hAltTrue, sigLabelAlt,"lep")
     if include_MiNNLO:
-        legend.AddEntry(hTrueNNLO, "MiNNLO","lep")    
+        legend.AddEntry(hTrueNNLO, "nNNLO+PS","lep")   
+        if EW_corr:
+            legend.AddEntry(hTrueEWC, "(nNNLO+PS)#times K_{EW}","lep")  
 
     #legend.AddEntry(hTrue, sigLabel,"lf")
     #legend.AddEntry(hAltTrue, sigLabelAlt,"l")
@@ -600,12 +603,17 @@ def MainErrorBand(hMain,hUncUp,hUncDn,varName,norm,normFb):
             #MainGraph.SetMinimum(0.5*(hMain.GetMinimum()))
         return MainGraph
 
-def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,lumi,unfoldDir,hTruthNNLO=None):
+def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,lumi,unfoldDir,hTruthNNLO=None,hTruthEWC=None):
     global include_MiNNLO
+    global EW_corr
     reset_include_MiNNLO = False
+    reset_EW_corr = False
     if include_MiNNLO and not hTruthNNLO:
         include_MiNNLO = False
         reset_include_MiNNLO = True
+    if EW_corr and not hTruthEWC:
+        EW_corr = False
+        reset_EW_corr = True
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
     
@@ -631,6 +639,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
     if include_MiNNLO:
         hTrueNNLO = hTruthNNLO.Clone()
+        if EW_corr:
+            hTrueEWC = hTruthEWC.Clone()    
     #lumi provided already in fb-1
     lumifb = lumi
 
@@ -665,10 +675,18 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hTrueAlt.SetMarkerColor(ROOT.kRed)
         if include_MiNNLO:
             hTrueNNLO.SetFillColor(8)
-            hTrueNNLO.SetLineStyle(10)#dashes
+            hTrueNNLO.SetLineStyle(2)# special dashes
             hTrueNNLO.SetFillStyle(0)#hollow
             hTrueNNLO.SetLineColor(ROOT.kViolet)
             hTrueNNLO.SetMarkerColor(ROOT.kViolet)
+
+            if EW_corr:
+                hTrueEWC.SetFillColor(8)
+                hTrueEWC.SetLineStyle(5)# special dashes
+                hTrueEWC.SetFillStyle(0)#hollow
+                hTrueEWC.SetLineColor(ROOT.kOrange)
+                hTrueEWC.SetMarkerColor(ROOT.kOrange)
+                
         print "Total Unf Data Integral",hUnf.Integral()
         Truthmaximum = hTrue.GetMaximum()
         Truthmaximum2 = hTrueAlt.GetMaximum()
@@ -676,6 +694,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hTrueAlt.SetLineWidth(4*hTrueAlt.GetLineWidth())
         if include_MiNNLO:
             hTrueNNLO.SetLineWidth(4*hTrueNNLO.GetLineWidth())
+            if EW_corr:
+                hTrueEWC.SetLineWidth(4*hTrueEWC.GetLineWidth())
 
         if not norm and normFb:
             print "Inclusive fiducial cross section = {} fb".format(hUnf.Integral(1,hUnf.GetNbinsX()))
@@ -707,6 +727,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             if include_MiNNLO:
                 NNLOTrueInt = hTrueNNLO.Integral(1,hTrueNNLO.GetNbinsX())
                 hTrueNNLO.Scale(1.0/NNLOTrueInt)
+
+                if EW_corr:
+                    EWCTrueInt = hTrueEWC.Integral(1,hTrueEWC.GetNbinsX())
+                    hTrueEWC.Scale(1.0/EWCTrueInt)
         elif normFb:
             hTrue.Scale(1.0/lumifb)
             #hTrueUncUp /= lumifb
@@ -714,6 +738,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             hTrueAlt.Scale(1.0/lumifb)
             if include_MiNNLO:
                 hTrueNNLO.Scale(1.0/lumifb)
+                if EW_corr:
+                    hTrueEWC.Scale(1.0/lumifb)    
         else:
             print "no special normalization"
 
@@ -726,6 +752,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             normalizeBins(hTrueAlt)
             if include_MiNNLO:
                 normalizeBins(hTrueNNLO)
+                if EW_corr:
+                    normalizeBins(hTrueEWC)    
 
         #Don't know why draw twice. Commented the following two lines.
         #hTrue.Draw("HIST")
@@ -756,6 +784,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             hTrueNNLO.GetXaxis().SetTitleSize(0)
             hTrueNNLO.Draw("E1 SAME") 
 
+            if EW_corr:
+                hTrueEWC.GetXaxis().SetLabelSize(0)
+                hTrueEWC.GetXaxis().SetTitleSize(0)
+                hTrueEWC.Draw("E1 SAME") 
+
 #        hTrueAlt.Draw("HISTSAME") #drawing second time, for updating?
 #        hTrue.Draw("HISTSAME")
         #hUnf.Sumw2(False)
@@ -771,23 +804,31 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         axismaximum = max([hUnf.GetMaximum(),hTrue.GetMaximum(),hTrueAlt.GetMaximum(),UnfErrBand.GetMaximum()])
         if include_MiNNLO:
             axismaximum = max(axismaximum,hTrueNNLO.GetMaximum())
+            if EW_corr:
+                axismaximum = max(axismaximum,hTrueEWC.GetMaximum())    
             
         
         hTrue.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         hTrueAlt.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         if include_MiNNLO:
             hTrueNNLO.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
+            if EW_corr:
+                hTrueEWC.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         hUnf.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         UnfErrBand.SetMaximum(axismaximum*args["scaleymax"]*ymax_fac)
         
         axisminimum = min([hUnf.GetMinimum(),hTrue.GetMinimum(),hTrueAlt.GetMinimum(),UnfErrBand.GetMinimum()])
         if include_MiNNLO:
             axisminimum = min(axisminimum,hTrueNNLO.GetMinimum())
+            if EW_corr:
+                axisminimum = min(axisminimum,hTrueEWC.GetMinimum())
         if not ymin_fac_extra==1.:
             hTrue.SetMinimum(axisminimum*ymin_fac_extra) #args["scaleymin"] is set to 0.3, not used here
             hTrueAlt.SetMinimum(axisminimum*ymin_fac_extra)
             if include_MiNNLO:
                 hTrueNNLO.SetMinimum(axisminimum*ymin_fac_extra)
+                if EW_corr:
+                    hTrueEWC.SetMinimum(axisminimum*ymin_fac_extra)
             hUnf.SetMinimum(axisminimum*ymin_fac_extra)
             UnfErrBand.SetMinimum(axisminimum*ymin_fac_extra)
       
@@ -822,7 +863,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         if not include_MiNNLO:
             legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords)
         else:
-            legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords,hTrueNNLO)
+            if not EW_corr:
+                legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords,hTrueNNLO)
+            else:
+                legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords,hTrueNNLO,hTrueEWC)
+                
         legend.Draw()
         texS,texS1,texS2=getLumiTextBox()
         sigLabel = "POWHEG+MCFM+Pythia8" #used?
@@ -896,7 +941,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         Altyaxis.SetTickLength(0.)
         Altyaxis.SetLabelFont(42)
         Altyaxis.SetLabelOffset(0.025) #0.01
-        Altyaxis.SetLabelSize(0.189)
+        if not include_MiNNLO:
+            Altyaxis.SetLabelSize(0.189)
+        else:
+            Altyaxis.SetLabelSize(0.167)
         Altyaxis.SetTitleFont(42)
         Altyaxis.SetTitleSize(0.16) #0.16
         Altyaxis.SetTitleOffset(0.29) #0.29
@@ -938,13 +986,31 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize,False)
         AltTex = getSigTextBox(0.15,0.85,sigLabelAlt,0.11)
 
-
+        yaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
+        yaxis.SetNdivisions(003)
+        yaxis.SetTickLength(0.)
+        #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
+        #yaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
+        #yaxis.SetTitle("Data/Theo.")
+        yaxis.SetLabelFont(42)
+        yaxis.SetLabelOffset(0.025) #0.01
+        if not include_MiNNLO:
+            yaxis.SetLabelSize(0.1485)
+        else:
+            yaxis.SetLabelSize(0.163)
+        yaxis.SetTitleFont(42)
+        yaxis.SetTitleSize(0.12)
+        yaxis.SetTitleOffset(0.365)
+        yaxis.Draw("SAME")
         
         if include_MiNNLO:
             #Fourth pad
             pad4 = createPad4(c)
             
             hTrueNNLONoErrs = hTrueNNLO.Clone() # need central value only to keep ratio uncertainties consistent
+            if EW_corr:
+                hTrueEWCNoErrs = hTrueEWC.Clone() # need central value only to keep ratio uncertainties consistent
+
             #nbins=hTrueNoErrs.GetNbinsX()
             #print("trueNbins: ",nbins)
 
@@ -954,21 +1020,39 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #hTrueNoErrs.SetError(array.array('d',[0.]*nbins))
             #Starting the ratio proceedure
             NNLORatio,NNLOline = createRatio(hUnf, hTrueNNLONoErrs)
+            if EW_corr:
+                EWCRatio,EWCline = createRatio(hTrueEWCNoErrs, hTrueNNLONoErrs)
+
             NNLORatioErrorBand = RatioErrorBand(NNLORatio,hUncUp,hUncDn,hTrueNNLONoErrs,varName) 
             NNLORatioErrorBand.GetYaxis().SetLabelSize(0)
             NNLORatioErrorBand.GetYaxis().SetTitleSize(0)
             NNLORatioErrorBand.Draw("a2")
             NNLORatio.Draw("PE1SAME")
+            if EW_corr:
+                EWCRatio.Draw("PE1SAME")
+
             #ratioErrorBand.Draw("p")
             NNLOline.SetLineColor(ROOT.kViolet)
             NNLOline.Draw("same")
             
-            ratioName_NNLO = "MiNNLO"
-            sigLabelNNLO = "MiNNLO"
+            ratioName_NNLO = "nNNLO+PS"
+            sigLabelNNLO = "nNNLO+PS"
             MCTextNNLO=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_NNLO,bottom_fontsize,False)
             NNLOTex = getSigTextBox(0.15,0.85,sigLabelNNLO,0.11)
 
-
+            NNLOyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
+            NNLOyaxis.SetNdivisions(003)
+            NNLOyaxis.SetTickLength(0.)
+            #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
+            #NNLOyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
+            #NNLOyaxis.SetTitle("Data/Theo.")
+            NNLOyaxis.SetLabelFont(42)
+            NNLOyaxis.SetLabelOffset(0.025) #0.01
+            NNLOyaxis.SetLabelSize(0.1) #0.1485
+            NNLOyaxis.SetTitleFont(42)
+            NNLOyaxis.SetTitleSize(0.12)
+            NNLOyaxis.SetTitleOffset(0.365)
+            NNLOyaxis.Draw("SAME")
 
 
 
@@ -1016,19 +1100,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             xaxis.SetNoExponent(True)
         xaxis.Draw("SAME")
 
-        yaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
-        yaxis.SetNdivisions(003)
-        yaxis.SetTickLength(0.)
-        #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
-        #yaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
-        #yaxis.SetTitle("Data/Theo.")
-        yaxis.SetLabelFont(42)
-        yaxis.SetLabelOffset(0.025) #0.01
-        yaxis.SetLabelSize(0.1485)
-        yaxis.SetTitleFont(42)
-        yaxis.SetTitleSize(0.12)
-        yaxis.SetTitleOffset(0.365)
-        yaxis.Draw("SAME")
+        
         c.Update()
         print("CanvasWidth: ", c.GetWw())
         print("CanvasHeight: ", c.GetWh())
@@ -1044,6 +1116,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
     if reset_include_MiNNLO:
         include_MiNNLO = True
+        
+    if reset_EW_corr:
+        EW_corr = True
 def mkdir(plotDir):
     for outdir in [plotDir]:
         try:
@@ -1128,6 +1203,9 @@ for varName in runVariables:
         hTrueAltTot = fUse.Get("tot_"+varName+"_trueAlt") 
         if include_MiNNLO:
             hTrueNNLOTot = fUse.Get("tot_"+varName+"_trueNNLO")    
+            if EW_corr:
+                hTrueEWCTot = fUse.Get("tot_"+varName+"_trueEWC")    
+
         hTotUncUp = fUse.Get("tot_"+varName+"_totUncUp")
         hTotUncDn = fUse.Get("tot_"+varName+"_totUncDown") 
         UnfoldOutDir=UnfoldDir+"/"+"tot"+"/plots"
@@ -1138,7 +1216,11 @@ for varName in runVariables:
         if not include_MiNNLO:
             generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir)
         else:
-            generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir,hTrueNNLOTot)
+            if not EW_corr:
+                generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir,hTrueNNLOTot)
+            else:
+                generatePlots(hUnfTot,hTotUncUp,hTotUncDn,hTrueTot,hTrueAltTot,varName,norm,normFb,args['lumi'],UnfoldOutDir,hTrueNNLOTot,hTrueEWCTot)
+
 #Show plots nicely on my webpages
 for cat in ["tot"]:   
 #for cat in ["eeee","eemm","mmmm","tot"]:   
