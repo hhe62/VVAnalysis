@@ -79,6 +79,8 @@ def getComLineArgs():
                         help='No Systematics calculations.')
     parser.add_argument('--diagnostic', action='store_true',
                         help='Save diagnostic histograms and exit in _generateUncertainties function')
+    parser.add_argument('--fiducialinfo', action='store_true',
+                        help='Save RECO signal, truth and resp histograms and exit in unfold function for the nominal result')
     parser.add_argument('--plotDir', type=str, nargs='?',
                         default='/afs/cern.ch/user/h/hehe/www/ZZFullRun2/PlottingResults/ZZ4l2017/ZZSelectionsTightLeps/ANPlots/ZZ4l2017/RespMat_Moriond2019IDMuSF',
                         help='Directory to put response and covariance plots in')
@@ -422,6 +424,7 @@ def generateResponseClass(varName, channel,sigSamples,sigSamplesPath,sumW,hPUWt,
     return responseMakers,altResponseMakers
 
 _printCounter = 0
+_fidfolder = "FidInfo_%s"%(str(datetime.datetime.now()).split(" ")[0]) #replace(" ", '-').replace(".","-").replace(":","-")
 #Load the RooUnfold library into ROOT
 ROOT.gSystem.Load("RooUnfold/libRooUnfold")
 def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSigSystDic,hTrueDic,hTrueSystDic_qqZZonly,hAltTrueDic,hDataDic,hbkgDic,hbkgMCDic,hbkgMCSystDic,nIter,plotDir=''):
@@ -533,6 +536,24 @@ def unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSig
     #print "TotBkgHist after rebinning: ",hBkgTotal,", ",hBkgTotal.Integral()
     hTruth['']=hTrue
 
+    
+
+    if args["fiducialinfo"]:
+        if not os.path.isdir(_fidfolder):
+            os.mkdir(_fidfolder)
+        if chan == channels[0]:
+            FidOutputFile=ROOT.TFile(os.path.join(_fidfolder,"FiducialInfo_%s.root"%(varName)),"RECREATE")
+        else:
+            FidOutputFile=ROOT.TFile(os.path.join(_fidfolder,"FiducialInfo_%s.root"%(varName)),"UPDATE")
+        FidOutputFile.cd()
+        hfidRECO = hSigNominal.Clone("FidInfoRECO_%s_%s"%(varName,chan))
+        hfidTruth = hTruth[''].Clone("FidInfoTruth_%s_%s"%(varName,chan))
+        hfidResp = hResponse.Clone("FidInfoResp_%s_%s"%(varName,chan))
+        for hfid in [hfidRECO,hfidTruth,hfidResp]:
+            hfid.Write()
+        FidOutputFile.Close()
+        return None,None,None,None,None,None
+        
     hUnfolded[''], hCov, hResp = getUnfolded(hSigNominal.Clone(),hBkgTotal,hTruth[''],hResponse,hData, nIter,withRespAndCov=True,isNom=True)
     print("Position Indicator: nominal")
     printTH1(hData,'data nominal')
@@ -2045,6 +2066,12 @@ for varName in runVariables:
         print "hTrue in main: ", hTrue
         print "hTrue in main: ", hTrueAlt
         hUnfolded[chan], hTrue[chan],hTrueAlt[chan],hDataDict[chan],hMCSigDict[chan],hBkgTotDict[chan] = unfold(varName,chan,responseMakers,altResponseMakers,hSigDic,hAltSigDic,hSigSystDic,hTrueDic,hTrueSystDic_qqZZonly,hAltTrueDic,hDataDic,hbkgDic,hbkgMCDic,hbkgMCSystDic,nIterations,OutputDir)
+        if args["fiducialinfo"]:
+            if not chan == channels[-1]:
+                continue
+            else:
+                print("Fiducial info histograms stored")
+                sys.exit()
         print("returning unfolded? ",hUnfolded[chan])
         #print("returning truth? ",hTrue[chan])
 
