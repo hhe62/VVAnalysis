@@ -125,10 +125,19 @@ def plotHist(h1,h2,k1,k2):
     portion = h2.Integral(1,h2.GetNbinsX())/h1.Integral(1,h1.GetNbinsX())
     return portion,legend
 
+def extraTex(x,y,tex):
+
+    texf = r.TLatex(x,y,tex)
+    texf.SetNDC()
+    texf.SetTextFont(52)
+    texf.SetTextColor(r.kBlack)
+    texf.SetTextSize(0.03)
+    texf.Draw()
+    return texf
 
 varstr="nJets mjj dEtajj jetPt[0] jetPt[1] absjetEta[0] absjetEta[1] MassAllj Mass0j Mass1j Mass2j Mass34j MassFull Mass0jFull Mass1jFull Mass2jFull Mass34jFull"
 vars = varstr.split(" ")
-#vars = ["MassFull"]
+#vars = ["jetPt[0]"]
 
 outdir = "%sFidPlots"%year
 pdfcommand=['convert']
@@ -175,6 +184,9 @@ lineStyles = [1,2,1,2]
 colors = [r.kOrange,2,r.kOrange,2]
 for var in vars:
     for chan in ["Total"]+channels:
+        chanp = chan
+        if chan == "Total":
+            chanp = ""
         hR,hT,hRsp = dict[var][chan]
         hdx = countXY(hR,hRsp,"x")
         hdy = countXY(hT,hRsp,"y")
@@ -206,8 +218,20 @@ for var in vars:
 
         portionR,legend1 = plotHist(hR,hdx,"Total signal","Out of fiducial")
         t1,t2,t3 = getLumiTextBox()
-        tex1,ratio1 = titleAndRatio("RECO Events %s"%chan,"Out of fiducial portion %s"%(round(portionR,3)),0.58)
+        tex1,ratio1 = titleAndRatio("RECO Events %s"%chanp,"Out of fiducial portion %s"%(round(portionR,3)),0.58)
         xa1 = redrawXaxis(hdx,var)
+
+        if "Full" in var:
+            texf = extraTex(0.65,0.7,"Full mass range")
+            #texEty = extraTex(0.65,0.6,str(hR.GetEntries()))
+        elif "Mass" in var:
+            texf = extraTex(0.65,0.7,"On-shell ZZ")
+        if "[0]" in var:
+            texf = extraTex(0.65,0.7,"Events with #geq 1 jet")    
+        if "[1]" in var:
+            texf = extraTex(0.65,0.7,"Events with #geq 2 jets")   
+
+        
         #pdb.set_trace()
         
         c1.cd(2)
@@ -218,8 +242,18 @@ for var in vars:
 
         portionT,legend2 = plotHist(hT,hdy,"Total signal","Not reconstructed")
         t4,t5,t6 = getLumiTextBox()
-        tex2,ratio2 = titleAndRatio("Truth Events %s"%chan,"Non-reconstructed portion %s"%(round(portionT,3)),0.52)
+        tex2,ratio2 = titleAndRatio("Truth Events %s"%chanp,"Non-reconstructed portion %s"%(round(portionT,3)),0.52)
         xa2 = redrawXaxis(hdy,var)
+
+        if "Full" in var:
+            texf2 = extraTex(0.65,0.7,"Full mass range")
+            #texEty2 = extraTex(0.65,0.6,str(hT.GetEntries()))
+        elif "Mass" in var:
+            texf2 = extraTex(0.65,0.7,"On-shell ZZ")
+        if "[0]" in var:
+            texf2 = extraTex(0.65,0.7,"Events with #geq 1 jet")    
+        if "[1]" in var:
+            texf2 = extraTex(0.65,0.7,"Events with #geq 2 jets") 
         
         c1.SaveAs(os.path.join(outdir,"%s_%s.png"%(var,chan)))
 
@@ -230,7 +264,12 @@ for var in vars:
 
         c1.Clear()
 
-pdfcommand.append(os.path.join("./","total_yr%s.pdf"%year))      
+
+if year != "tot":
+    yearp = "20"+year
+else:
+    yearp = "Run2"
+pdfcommand.append(os.path.join("./","%s.pdf"%yearp))      
 #pdfcommand2.append(os.path.join(outdir,"channels.pdf"))   
 subprocess.call(pdfcommand)
 #subprocess.call(pdfcommand2)
