@@ -2071,6 +2071,8 @@ for varName in runVariables:
                 continue
             else:
                 print("Fiducial info histograms stored")
+                del sys
+                import sys
                 sys.exit()
         print("returning unfolded? ",hUnfolded[chan])
         #print("returning truth? ",hTrue[chan])
