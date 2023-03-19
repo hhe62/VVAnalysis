@@ -334,6 +334,7 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=Non
         legend.AddEntry(hTrueNNLO, "nNNLO+PS","lep")   
         if EW_corr:
             legend.AddEntry(hTrueEWC, "(nNNLO+PS)#times K_{EW}","lep")  
+            #legend.AddEntry(hTrueEWC, "(nNNLO+PS) no GenWgt","lep")  
 
     #legend.AddEntry(hTrue, sigLabel,"lf")
     #legend.AddEntry(hAltTrue, sigLabelAlt,"l")
@@ -731,6 +732,13 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 if EW_corr:
                     EWCTrueInt = hTrueEWC.Integral(1,hTrueEWC.GetNbinsX())
                     hTrueEWC.Scale(1.0/EWCTrueInt)
+
+                    if varName == "MassAllj": #If m4l inclusive, after normalization, replace EWK with noEWK plot directly scaled by ratio [1.02244, etc.]
+                        EWkfac = [1.02244,0.98414,0.97058,0.95705,0.95456,0.92758,0.91712,0.87614,0.81093]
+                        
+                        #for ifac in range(1,hTrueEWC.GetNbinsX()+1):
+                        #    hTrueEWC.SetBinContent(ifac,hTrueNNLO.GetBinContent(ifac)*EWkfac[ifac-1])
+
         elif normFb:
             hTrue.Scale(1.0/lumifb)
             #hTrueUncUp /= lumifb
@@ -751,8 +759,14 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #normalizeBins(hTrueUncDn)
             normalizeBins(hTrueAlt)
             if include_MiNNLO:
+                print("==================%s normalization check========================"%hTrueNNLO.GetName())
+                print(hTrueNNLO.Integral(1,hTrueNNLO.GetNbinsX())) #print before normalization by bin width
+
                 normalizeBins(hTrueNNLO)
                 if EW_corr:
+                    print("==================%s normalization check========================"%hTrueEWC.GetName())
+                    print(hTrueEWC.Integral(1,hTrueEWC.GetNbinsX()))
+
                     normalizeBins(hTrueEWC)    
 
         #Don't know why draw twice. Commented the following two lines.
@@ -783,12 +797,12 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             hTrueNNLO.GetXaxis().SetLabelSize(0)
             hTrueNNLO.GetXaxis().SetTitleSize(0)
             hTrueNNLO.Draw("E1 SAME") 
-
+           
             if EW_corr:
                 hTrueEWC.GetXaxis().SetLabelSize(0)
                 hTrueEWC.GetXaxis().SetTitleSize(0)
                 hTrueEWC.Draw("E1 SAME") 
-
+                
 #        hTrueAlt.Draw("HISTSAME") #drawing second time, for updating?
 #        hTrue.Draw("HISTSAME")
         #hUnf.Sumw2(False)
@@ -1021,7 +1035,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #Starting the ratio proceedure
             NNLORatio,NNLOline = createRatio(hUnf, hTrueNNLONoErrs)
             if EW_corr:
-                EWCRatio,EWCline = createRatio(hTrueEWCNoErrs, hTrueNNLONoErrs)
+                EWCRatio,EWCline = createRatio(hUnf,hTrueEWCNoErrs)
+                #EWCRatio,EWCline = createRatio(hTrueEWCNoErrs, hTrueNNLONoErrs)
 
             NNLORatioErrorBand = RatioErrorBand(NNLORatio,hUncUp,hUncDn,hTrueNNLONoErrs,varName) 
             NNLORatioErrorBand.GetYaxis().SetLabelSize(0)
@@ -1029,6 +1044,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLORatioErrorBand.Draw("a2")
             NNLORatio.Draw("PE1SAME")
             if EW_corr:
+                EWCRatio.SetLineColor(ROOT.kOrange)
                 EWCRatio.Draw("PE1SAME")
 
             #ratioErrorBand.Draw("p")
@@ -1205,7 +1221,7 @@ for varName in runVariables:
             hTrueNNLOTot = fUse.Get("tot_"+varName+"_trueNNLO")    
             if EW_corr:
                 hTrueEWCTot = fUse.Get("tot_"+varName+"_trueEWC")    
-
+                #hTrueEWCTot = fUse.Get("tot_"+varName+"_trueNNLONoGenW") 
         hTotUncUp = fUse.Get("tot_"+varName+"_totUncUp")
         hTotUncDn = fUse.Get("tot_"+varName+"_totUncDown") 
         UnfoldOutDir=UnfoldDir+"/"+"tot"+"/plots"
