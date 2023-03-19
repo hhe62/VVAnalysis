@@ -2126,6 +2126,7 @@ for varName in runVariables:
             hTotBkg = hBkgTotDict["eeee"]
             hTotMCSig = hMCSigDict["eeee"]
             hTot = hUnfolded["eeee"]['']
+            hTotalt = hUnfolded["eeee"]['generator']
             hTrueTot = hTrue["eeee"]['']
             hTrueAltTot = hTrueAlt["eeee"]['']
             #channels.remove("eeee")
@@ -2135,6 +2136,7 @@ for varName in runVariables:
             hTotBkg.Add(hBkgTotDict[c])
             hTotMCSig.Add(hMCSigDict[c])
             hTot.Add(hUnfolded[c][''])
+            hTotalt.Add(hUnfolded[c]['generator'])
             hTrueTot.Add(hTrue[c][''])
             hTrueAltTot.Add(hTrueAlt[c][''])
         print "hErr.values(): ",hErr.values()
@@ -2158,6 +2160,11 @@ for varName in runVariables:
         TotName = "tot_"+varName+"_unf"
         hTotUnf.SetName(TotName)
         savehists.append(hTotUnf)
+
+        hTotUnfalt = hTotalt.Clone()
+        TotNamealt = "tot_"+varName+"_unfalt"
+        hTotUnfalt.SetName(TotNamealt)
+        savehists.append(hTotUnfalt)
         #hTrue
         hTotTrue = hTrueTot.Clone()
         TotTruName = "tot_"+varName+"_true"
