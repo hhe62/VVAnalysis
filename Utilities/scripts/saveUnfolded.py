@@ -2030,6 +2030,9 @@ if not args['noSyst']:  #systList has repeated variables, but shouldn't matter a
 else:
     hSigSystDic = None #Since they are still put into function arguments
     hbkgMCSystDic = None
+    hSigSystDic_qqZZonly = None
+    hTrueSystDic_qqZZonly = None
+
 
 OutputDirs={}
 diagnostic_count=0
