@@ -51,26 +51,26 @@ def printr(l,ro):
 
 #fqq = ROOT.TFile("qqOutputHistMiNNLO.root")
 #fgg = ROOT.TFile("ggOutputHistMiNNLO.root")
-fqq = ROOT.TFile("Hist_qqcompleteCorr.root")
-fgg = ROOT.TFile("Hist_ggcompleteNoRB.root")
+fqq = ROOT.TFile("Hist_qqcompleteFullFix.root")
+fgg = ROOT.TFile("Hist_ggcompleteFullFix.root")
 
-vars = ["MassAllj","nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
-vars2 = ["m4l","CleanJet","DiJetMass","DeltaEtajj","LeadingJetPt","SubLeadingJetPt","LeadingJetEta","SubLeadingJetEta"]
+#vars = ["MassAllj","nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
+#vars2 = ["m4l","CleanJet","DiJetMass","DeltaEtajj","LeadingJetPt","SubLeadingJetPt","LeadingJetEta","SubLeadingJetEta"]
 
-vars = ["MassAllj"]
-vars2 = ["m4l"]
+vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","MassAllj","Mass0j","Mass1j","Mass2j","Mass34j"]
+vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","m4l","Mass0j","Mass1j","Mass2j","Mass34j"] #only need to switch histogram name for m4l
 kfacs = [1.02244,0.98414,0.97058,0.95705,0.95456,0.92758,0.91712,0.87614,0.81093]
 
-#xsec in fiducial region https://arxiv.org/pdf/2108.05337.pdf
+#xsec in fiducial region https://arxiv.org/pdf/2108.05337.pdf, no longer needed since the LHE events are normalized to inclusive cross sections
 qqxsec = 17.45
 nNNLOxsec = 20.04
 ggxsec = nNNLOxsec-qqxsec
 
 #m4l distribution as reference for normalization
-hqqm = fqq.Get("m4l")
-hggm = fgg.Get("m4l")
-hqqmNG = fqq.Get("m4lNG")
-hggmNG = fgg.Get("m4lNG")
+#hqqm = fqq.Get("m4l")
+#hggm = fgg.Get("m4l")
+#hqqmNG = fqq.Get("m4lNG")
+#hggmNG = fgg.Get("m4lNG")
 #qqfac = qqxsec/hqqm.Integral(1,hqqm.GetNbinsX())
 #ggfac = ggxsec/hggm.Integral(1,hggm.GetNbinsX())
 #qqfacNG = qqxsec/hqqmNG.Integral(1,hqqmNG.GetNbinsX())
@@ -81,20 +81,21 @@ ggfac = 1./9999000.
 
 for i,var in enumerate(vars2):
     var1 = vars[i]
+    hqq = fqq.Get(var)
+    hgg = fgg.Get(var)
     if var != "m4l":
-        hqq = fqq.Get("h_"+var)
-        hgg = fgg.Get("h_"+var)
-        #hqqNoGen = fqq.Get("UW_"+var)
-        #hggNoGen= fgg.Get("UW_"+var)
+        
+        hqqEW = fqq.Get(var+"E")
+        hggEW = fgg.Get(var+"E")
+        
     else:
-        hqq = hqqm
-        hgg = hggm
-        hqq = rebin(hqq,var1)
-        hgg = rebin(hgg,var1)
-        #hqqNoGen = hqqmNG
-        #hggNoGen= hggmNG
-    hqqEW = fqq.Get(var+"EW")
-    hggEW= fgg.Get(var+"EW")
+        
+        hqqEW = fqq.Get(var+"EW")
+        hggEW = fgg.Get(var+"EW")
+       
+      
+    hqq = rebin(hqq,var1)
+    hgg = rebin(hgg,var1)
     hqqEW = rebin(hqqEW,var1)
     hggEW = rebin(hggEW,var1)
     
@@ -126,42 +127,59 @@ for i,var in enumerate(vars2):
 
     fout.Close()
 
-    print(var1)
-    #printTH1N(hqq)
-    #printTH1N(hqqEW)
-    #printTH1N(hgg)
-    #printTH1N(hggEW)
-    #pdb.set_trace()
-    lhsum = listNh(hsum)
-    lhsumEW = listNh(hsumEW)
-    #lhsumNoGen = listNh(hsumNoGen)
-    
-    #printr(lhsumEW,7)
-    print(lhsum)
-    #printr(Ratiol(lhsumEW,lhsum),7)
-    paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
-    printr(paperNorm,7)
-    printr(Ratiol(lhsum,paperNorm),7)
-    #printr(Ratiol(lhsum,lhsumNoGen),7)
-    #printr(lhsumNoGen,7)
-    #printTH1N(hsum)
-    #printTH1N(hsumEW)
-    #printTH1N(hsumNoGen)
-    
-    #Print group for checkin with paper
-    '''
-    print("Normalized hsum, hsumNoGen and paperNorm, followed by two ratios")
-    paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
-    lhsum = listNh(hsum)
-    lhsumNoGen = listNh(hsumNoGen)
-    printr(lhsum,7)
-    printr(lhsumNoGen,7)
-    printr(paperNorm,7)
-    printr(Ratiol(lhsum,paperNorm),7)
-    printr(Ratiol(lhsumNoGen,paperNorm),7)
-    '''
-    
-    print("")
+    if var=="m4l":
+        print(var1)
+        hmissedqq = fqq.Get("4lMissed")
+        hqqLHE = fqq.Get("m4lLHETotNo4l")
+
+        missedqq = hmissedqq.GetBinContent(1)
+        totLHEqq = hqqLHE.GetBinContent(1)
+        
+        hmissedgg = fgg.Get("4lMissed")
+        hggLHE = fgg.Get("m4lLHETotNo4l")
+        
+        missedgg = hmissedgg.GetBinContent(1)
+        totLHEgg = hggLHE.GetBinContent(1)
+        
+        
+        print("nevt lost by 4l requirement: qq,gg and ratio over total LHE")
+        print(missedqq,missedqq/totLHEqq)
+        print(missedgg,missedgg/totLHEgg)
+        #printTH1N(hqq)
+        #printTH1N(hqqEW)
+        #printTH1N(hgg)
+        #printTH1N(hggEW)
+        #pdb.set_trace()
+        lhsum = listNh(hsum)
+        lhsumEW = listNh(hsumEW)
+        #lhsumNoGen = listNh(hsumNoGen)
+        
+        #printr(lhsumEW,7)
+        printr(lhsum,7)
+        #printr(Ratiol(lhsumEW,lhsum),7)
+        paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
+        printr(paperNorm,7)
+        printr(Ratiol(lhsum,paperNorm),7)
+        #printr(Ratiol(lhsum,lhsumNoGen),7)
+        #printr(lhsumNoGen,7)
+        #printTH1N(hsum)
+        #printTH1N(hsumEW)
+        #printTH1N(hsumNoGen)
+        
+        #Print group for checkin with paper
+        '''
+        print("Normalized hsum, hsumNoGen and paperNorm, followed by two ratios")
+        paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
+        lhsum = listNh(hsum)
+        lhsumNoGen = listNh(hsumNoGen)
+        printr(lhsum,7)
+        printr(lhsumNoGen,7)
+        printr(paperNorm,7)
+        printr(Ratiol(lhsum,paperNorm),7)
+        printr(Ratiol(lhsumNoGen,paperNorm),7)
+        '''
+        
+        print("")
 
 
 #Temporary comparison
