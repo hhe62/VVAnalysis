@@ -129,7 +129,7 @@
             3.6, 
             4.7
         ], 
-        "ymax_fac": 1.0, 
+        "ymax_fac": 1.2, 
         "ratio_max": 1.8, 
         "prettyVars": "|#Delta#eta(j_{1}, j_{2})|", 
         "bottom_xy": [
@@ -249,7 +249,7 @@
         "top_size": 0.1
     }, 
     "Mass0j": {
-        "ratio_min": 0.4, 
+        "ratio_min": 0.3, 
         "top_xy": [
             0.2, 
             0.87

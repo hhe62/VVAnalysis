@@ -31,15 +31,21 @@ for var in varlist:
     if var == "MassAllj":
         nj = "All"
     if var == "Mass4j":
-        nj = ">=4"
+        nj = "\\geq 4"
     if var == "Mass34j":
-        nj = ">=3"
+        nj = "\\geq 3"
     dict[var]["units"] = '[GeV]'
     if nj in ['All','0','1']:
         dict[var]["_binning"] = [100.] + [200.+50.*i for i in range(5)] + [500.,600.,800.,1000.]
     else:
         dict[var]["_binning"] = [100.,200.,400.,600.,1000.] 
-    dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
+
+    if nj in ['0','1']:    
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jet)"%nj
+    elif nj == "All":
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%sJets)"%nj
+    else:
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
     dict[var]["responseClassNames"] = 'testJet'
 
 for var in varlistFull:
@@ -48,15 +54,22 @@ for var in varlistFull:
     if var == "MassFull":
         nj = "All"
     if var == "Mass4jFull":
-        nj = ">=4"
+        nj = "\\geq 4"
     if var == "Mass34jFull":
-        nj = ">=3"
+        nj = "\\geq 3"
     dict[var]["units"] = '[GeV]'
     if nj in ['All','0','1']:
         dict[var]["_binning"] = [80.,100.,120.,130.,180.,230.,300.,450.,600.,800.,1300.]
     else:
         dict[var]["_binning"] = [80.,100.,120.,130.,180.,230.,300.,450.,600.,800.,1300.]
-    dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
+
+    if nj in ['0','1']:
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jet)"%nj
+    elif nj == "All":
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%sJets)"%nj
+    else:
+        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
+
     dict[var]["responseClassNames"] = 'testJet'
 #====================================================================================    
 
@@ -72,14 +85,14 @@ var3="mjj"
 dict[var3] = {}
 dict[var3]["units"] = '[GeV]'
 dict[var3]["_binning"] = [0.,200.,400.,600.,1000.]#[100.+40.*i for i in range(31)]
-dict[var3]["prettyVars"] = 'Di-jet Mass'
+dict[var3]["prettyVars"] = 'Dijet Mass'
 dict[var3]["responseClassNames"] = 'testJet'
 
 var4="dEtajj"
 dict[var4] = {}
 dict[var4]["units"] = ''
 dict[var4]["_binning"] = [0.,1.2,2.4,3.6,4.7]
-dict[var4]["prettyVars"] = '#Delta#eta(j_{1}, j_{2})'
+dict[var4]["prettyVars"] = '|#Delta#eta(j_{1}, j_{2})|'
 dict[var4]["responseClassNames"] = 'testJet'
 
 for i,var in enumerate(["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]):
@@ -117,14 +130,22 @@ for key in dict.keys():
 
 #Adjust settings for individual variables
 dict['jetPt[0]']['ratio_max'] = 2.99
+dict['nJets']['ratio_max'] = 2.5
 dict['jetPt[0]']['ratio_min'] = 0.4
+dict['Mass0j']['ratio_min'] = 0.3
+dict['MassAllj']['ratio_min'] = 0.3
+
 
 dict['jetPt[1]']['ymax_fac'] = 1.
+dict['absjetEta[1]']['ymax_fac'] = 1.3
+dict['absjetEta[0]']['ymax_fac'] = 1.3
+dict['dEtajj']['ymax_fac'] = 1.2
 dict['jetPt[1]']['ratio_max'] = 2.99
 dict['jetPt[1]']['ratio_min'] = 0.4
 dict['jetPt[1]']['top_xy'] = (0.6,0.87)
 dict['jetPt[1]']['bottom_xy'] = (0.6,0.91)
 dict['jetPt[1]']['ymin_fac'] =1.3
+dict['MassFull']['ymin_fac'] =1.5
 dict['jetPt[1]']['ymin_fac_extra'] =0.3
 
 #dict['Mass4j']['top_xy'] = (0.6,0.87)
