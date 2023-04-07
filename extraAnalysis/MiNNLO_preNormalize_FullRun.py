@@ -61,6 +61,10 @@ vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1
 vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","m4l","Mass0j","Mass1j","Mass2j","Mass34j"] #only need to switch histogram name for m4l
 kfacs = [1.02244,0.98414,0.97058,0.95705,0.95456,0.92758,0.91712,0.87614,0.81093]
 
+
+vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
+vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
+
 #xsec in fiducial region https://arxiv.org/pdf/2108.05337.pdf, no longer needed since the LHE events are normalized to inclusive cross sections
 qqxsec = 17.45
 nNNLOxsec = 20.04
@@ -127,8 +131,9 @@ for i,var in enumerate(vars2):
 
     fout.Close()
 
+    print(var1)
     if var=="m4l":
-        print(var1)
+        
         hmissedqq = fqq.Get("4lMissed")
         hqqLHE = fqq.Get("m4lLHETotNo4l")
 
@@ -150,36 +155,36 @@ for i,var in enumerate(vars2):
         #printTH1N(hgg)
         #printTH1N(hggEW)
         #pdb.set_trace()
-        lhsum = listNh(hsum)
-        lhsumEW = listNh(hsumEW)
+    lhsum = listNh(hsum)
+    lhsumEW = listNh(hsumEW)
         #lhsumNoGen = listNh(hsumNoGen)
         
-        #printr(lhsumEW,7)
-        printr(lhsum,7)
-        #printr(Ratiol(lhsumEW,lhsum),7)
-        paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
-        printr(paperNorm,7)
-        printr(Ratiol(lhsum,paperNorm),7)
-        #printr(Ratiol(lhsum,lhsumNoGen),7)
-        #printr(lhsumNoGen,7)
-        #printTH1N(hsum)
-        #printTH1N(hsumEW)
-        #printTH1N(hsumNoGen)
-        
-        #Print group for checkin with paper
-        '''
-        print("Normalized hsum, hsumNoGen and paperNorm, followed by two ratios")
-        paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
-        lhsum = listNh(hsum)
-        lhsumNoGen = listNh(hsumNoGen)
-        printr(lhsum,7)
-        printr(lhsumNoGen,7)
-        printr(paperNorm,7)
-        printr(Ratiol(lhsum,paperNorm),7)
-        printr(Ratiol(lhsumNoGen,paperNorm),7)
-        '''
-        
-        print("")
+    printr(lhsumEW,7)
+    printr(lhsum,7)
+    printr(Ratiol(lhsumEW,lhsum),7)
+    #paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
+    #printr(paperNorm,7)
+    #printr(Ratiol(lhsum,paperNorm),7)
+    #printr(Ratiol(lhsum,lhsumNoGen),7)
+    #printr(lhsumNoGen,7)
+    #printTH1N(hsum)
+    #printTH1N(hsumEW)
+    #printTH1N(hsumNoGen)
+    
+    #Print group for checkin with paper
+    '''
+    print("Normalized hsum, hsumNoGen and paperNorm, followed by two ratios")
+    paperNorm = [0.17590936266589538, 0.3781595634643841, 0.1963998830023097, 0.10069941959681805, 0.05568004727354278, 0.052217673625462646, 0.02160027834458957, 0.01459272741863249, 0.006666502098751068]    
+    lhsum = listNh(hsum)
+    lhsumNoGen = listNh(hsumNoGen)
+    printr(lhsum,7)
+    printr(lhsumNoGen,7)
+    printr(paperNorm,7)
+    printr(Ratiol(lhsum,paperNorm),7)
+    printr(Ratiol(lhsumNoGen,paperNorm),7)
+    '''
+    
+    print("")
 
 
 #Temporary comparison
