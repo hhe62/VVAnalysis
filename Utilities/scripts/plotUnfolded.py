@@ -12,10 +12,13 @@ import datetime
 import array,json,pdb
 from ROOT import vector as Vec
 
+
 VFloat = Vec('float')
 #from PlotTools import PlotStyle as Style, pdfViaTex
 include_MiNNLO = True
 EW_corr = True
+
+
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
@@ -66,6 +69,17 @@ args = getComLineArgs()
 today = datetime.date.today().strftime("%d%b%Y")
 
 #manager_path = ConfigureJobs.getManagerPath()
+EW_P4 = ("Mass" in args['variable'] and not "Full" in args['variable'] ) 
+
+#y direction separation points of the panels
+if not include_MiNNLO:
+    panel_breakpoints = [0.03,0.20,0.33]
+else:
+    panel_breakpoints = [0.01,0.16,0.25,0.33]
+    if EW_P4 and EW_corr:
+        panel_breakpoints = [0.01,0.1,0.19,0.28,0.37]
+
+pbpts = panel_breakpoints
 
 analysis=args['analysis']
 _binning = {
@@ -347,7 +361,7 @@ def createCanvasPads(varName):
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetLegendBorderSize(0)
     # Upper histogram plot is pad1
-    pad1 = ROOT.TPad("pad1", "pad1", 0.01, 0.33, 0.99, 0.99)
+    pad1 = ROOT.TPad("pad1", "pad1", 0.01, pbpts[-1], 0.99, 0.99)
     pad1.Draw()
     pad1.cd()
     if varName!="drz1z2":
@@ -367,10 +381,9 @@ def createPad2(canvas):
     # Lower ratio plot is pad2
     canvas.cd()  # returns to main canvas before defining pad2
     canvas.GetListOfPrimitives().SetOwner(True)
-    if not include_MiNNLO:
-        pad2 = ROOT.TPad("pad2", "pad2", 0.01, 0.20, 0.99, 0.33)
-    else:
-        pad2 = ROOT.TPad("pad2", "pad2", 0.01, 0.25, 0.99, 0.34)
+    
+    pad2 = ROOT.TPad("pad2", "pad2", 0.01, pbpts[-2], 0.99, pbpts[-1])
+   
     pad2.Draw()
     pad2.cd()
     pad2.SetFillColor(0)
@@ -391,10 +404,9 @@ def createPad2(canvas):
 def createPad3(canvas):
     # Lower ratio plot is pad3
     canvas.cd()  # returns to main canvas before defining pad3
-    if not include_MiNNLO:
-        pad3 = ROOT.TPad("pad3", "pad3", 0.01, 0.03, 0.99, 0.20)
-    else:
-        pad3 = ROOT.TPad("pad3", "pad3", 0.01, 0.16, 0.99, 0.25)
+    
+    pad3 = ROOT.TPad("pad3", "pad3", 0.01, pbpts[-3], 0.99, pbpts[-2])
+    
     pad3.Draw()
     pad3.cd()
     pad3.SetFillColor(0)
@@ -420,22 +432,47 @@ def createPad3(canvas):
 def createPad4(canvas): #For MiNNLO
     # Lower ratio plot is pad4
     canvas.cd()  # returns to main canvas before defining pad4
-    pad4 = ROOT.TPad("pad4", "pad4", 0.01, 0.01, 0.99, 0.16)
+    pad4 = ROOT.TPad("pad4", "pad4", 0.01, pbpts[-4], 0.99, pbpts[-3])
     pad4.Draw()
     pad4.cd()
     pad4.SetFillColor(0)
     pad4.SetFrameLineWidth(3)
     pad4.SetFrameBorderMode(0)
     #pad4.SetFrameFillStyle(4000)
-    pad4.SetBorderMode(0)
+    pad4.SetBorderMode(1)
     pad4.SetTopMargin(0)  # joins upper and lower plot
-    pad4.SetBottomMargin(0.45)
+    if not (EW_P4 and EW_corr):
+        pad4.SetBottomMargin(0.45)
+    else:
+        pad4.SetBottomMargin(0.)
     if "Full" in varName:
         pad4.SetLogx()
 
     #pad4.SetGridx()
     #pad4.Draw()
     return pad4
+
+def createPad5(canvas): #For MiNNLO EWK m4l
+    # Lower ratio plot is pad5
+    canvas.cd()  # returns to main canvas before defining pad5
+    pad5 = ROOT.TPad("pad5", "pad5", 0.01, pbpts[-5], 0.99, pbpts[-4])
+    pad5.Draw()
+    pad5.cd()
+    pad5.SetFillColor(0)
+    pad5.SetFrameLineWidth(3)
+    pad5.SetFrameBorderMode(0)
+    #pad5.SetFrameFillStyle(4000)
+    pad5.SetBorderMode(1)
+    pad5.SetTopMargin(0)  # joins upper and lower plot
+    
+    pad5.SetBottomMargin(0.45) #This is currently the bottommost pad
+  
+    if "Full" in varName:
+        pad5.SetLogx()
+
+    #pad5.SetGridx()
+    #pad5.Draw()
+    return pad5
 
 #rebin histos and take care of overflow bins
 def rebin(hist,varName): #didn't handle error, but this function not actually used
@@ -620,8 +657,12 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     
     top_xy = myvar_dict[varName]['top_xy'] #for MC labels positioning
     bottom_xy = myvar_dict[varName]['bottom_xy']
+    xyP3 = myvar_dict[varName]['xyP3'] #for MC labels positioning
+    xyP4 = myvar_dict[varName]['xyP4']
     top_fontsize=myvar_dict[varName]['top_size']
     bottom_fontsize=myvar_dict[varName]['bottom_size']
+    fontsizeP3=myvar_dict[varName]['size_P3']  #Font sizes for 3rd and 4th ratio panel label
+    fontsizeP4=myvar_dict[varName]['size_P4']
     ymax_fac=myvar_dict[varName]['ymax_fac']
     ymin_fac_extra=myvar_dict[varName]['ymin_fac_extra']
 
@@ -1043,7 +1084,13 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLORatioErrorBand.GetYaxis().SetTitleSize(0)
             NNLORatioErrorBand.Draw("a2")
             NNLORatio.Draw("PE1SAME")
-            if EW_corr:
+
+            if EW_P4 and EW_corr:
+                EWCRatioErrorBand = RatioErrorBand(EWCRatio,hUncUp,hUncDn,hTrueEWCNoErrs,varName) 
+                EWCRatioErrorBand.GetYaxis().SetLabelSize(0)
+                EWCRatioErrorBand.GetYaxis().SetTitleSize(0)
+
+            if EW_corr and not EW_P4:
                 EWCRatio.SetLineColor(ROOT.kOrange)
                 EWCRatio.Draw("PE1SAME")
 
@@ -1053,7 +1100,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             
             ratioName_NNLO = "nNNLO+PS"
             sigLabelNNLO = "nNNLO+PS"
-            MCTextNNLO=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_NNLO,bottom_fontsize,False)
+            MCTextNNLO=getAxisTextBox(xyP3[0],xyP3[1],ratioName_NNLO,fontsizeP3,False)
             NNLOTex = getSigTextBox(0.15,0.85,sigLabelNNLO,0.11)
 
             NNLOyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
@@ -1070,9 +1117,32 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLOyaxis.SetTitleOffset(0.365)
             NNLOyaxis.Draw("SAME")
 
+            if EW_P4 and EW_corr:
+                pad5 = createPad5(c)
 
+                EWCRatioErrorBand.Draw("a2")
+                EWCRatio.Draw("PE1SAME")
+                EWCline.SetLineColor(ROOT.kOrange)
+                EWCline.Draw("same")
 
+                ratioName_EWC = "(nNNLO+PS)#times K_{EW}"
+                sigLabelEWC = "(nNNLO+PS)#times K_{EW}"
+                MCTextEWC=getAxisTextBox(xyP4[0],xyP4[1],ratioName_EWC,fontsizeP4,False)
+                EWCTex = getSigTextBox(0.15,0.85,sigLabelEWC,0.11)
 
+                EWCyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
+                EWCyaxis.SetNdivisions(003)
+                EWCyaxis.SetTickLength(0.)
+                #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
+                #EWCyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
+                #EWCyaxis.SetTitle("Data/Theo.")
+                EWCyaxis.SetLabelFont(42)
+                EWCyaxis.SetLabelOffset(0.025) #0.01
+                EWCyaxis.SetLabelSize(0.1) #0.1485
+                EWCyaxis.SetTitleFont(42)
+                EWCyaxis.SetTitleSize(0.12)
+                EWCyaxis.SetTitleOffset(0.365)
+                EWCyaxis.Draw("SAME")
 
 
         #redraw axis
