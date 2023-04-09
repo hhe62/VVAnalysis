@@ -71,13 +71,23 @@ today = datetime.date.today().strftime("%d%b%Y")
 #manager_path = ConfigureJobs.getManagerPath()
 EW_P4 = ("Mass" in args['variable'] and not "Full" in args['variable'] ) 
 
+#Bottom margin for bottommost panel
+if (EW_corr and EW_P4):
+    bmg = 0.4
+    bpwidth = 0.09
+else:
+    bmg = 0.45
+    bpwidth = 0.11
+lastbpw = round(bpwidth/(1.-bmg),2)
 #y direction separation points of the panels
 if not include_MiNNLO:
     panel_breakpoints = [0.03,0.20,0.33]
 else:
-    panel_breakpoints = [0.01,0.16,0.25,0.33]
+    panel_breakpoints = [0.01,0.01+lastbpw] + [round(0.01+lastbpw+bpwidth*bpind,2) for bpind in range(1,3)]
     if EW_P4 and EW_corr:
-        panel_breakpoints = [0.01,0.1,0.19,0.28,0.37]
+        panel_breakpoints = [0.01,0.01+lastbpw] + [round(0.01+lastbpw+bpwidth*bpind,2) for bpind in range(1,4)]
+        #panel_breakpoints = [0.01,0.15,0.227,0.304,0.381]
+        #panel_breakpoints = [0.01,0.15,0.22,0.28,0.37]
 
 pbpts = panel_breakpoints
 
@@ -161,6 +171,7 @@ prettyVars = {
 with open('varsFile.json') as var_json_file:
     myvar_dict = json.load(var_json_file)
 
+ytilt_fac = myvar_dict[args['variable']]['ytilt_fac']
 # list of variables not counting systematic shifts
 varList=['Mass','ZZPt','ZPt','LepPt','dPhiZ1Z2','dRZ1Z2'] #With original list, histograms will be searched for all variables regardless of whether they are in runVariables
 varNames={'mass': 'Mass','pt':'ZZPt','zpt':'ZPt','leppt':'LepPt','dphiz1z2':'dPhiZ1Z2','drz1z2':'dRZ1Z2'}
@@ -389,7 +400,7 @@ def createPad2(canvas):
     pad2.SetFillColor(0)
     pad2.SetFrameLineWidth(3)
     pad2.SetFrameBorderMode(0)
-    pad2.SetBorderMode(1)#bordermode = -1 box looks as it is behind the screen
+    pad2.SetBorderMode(0)#bordermode = -1 box looks as it is behind the screen
    # bordermode = 0 no special effects
    # bordermode = 1 box looks as it is in front of the screen
     pad2.SetTopMargin(0)  # joins upper and lower plot
@@ -415,9 +426,9 @@ def createPad3(canvas):
     #pad3.SetFrameFillStyle(4000)
     if not include_MiNNLO:
         pad3.SetBorderMode(0)
-        pad3.SetBottomMargin(0.45)
+        pad3.SetBottomMargin(bmg)
     else:
-        pad3.SetBorderMode(1)
+        pad3.SetBorderMode(0)
         pad3.SetBottomMargin(0)
     pad3.SetTopMargin(0)  # joins upper and lower plot
     
@@ -439,10 +450,10 @@ def createPad4(canvas): #For MiNNLO
     pad4.SetFrameLineWidth(3)
     pad4.SetFrameBorderMode(0)
     #pad4.SetFrameFillStyle(4000)
-    pad4.SetBorderMode(1)
+    pad4.SetBorderMode(0)
     pad4.SetTopMargin(0)  # joins upper and lower plot
     if not (EW_P4 and EW_corr):
-        pad4.SetBottomMargin(0.45)
+        pad4.SetBottomMargin(bmg)
     else:
         pad4.SetBottomMargin(0.)
     if "Full" in varName:
@@ -462,10 +473,10 @@ def createPad5(canvas): #For MiNNLO EWK m4l
     pad5.SetFrameLineWidth(3)
     pad5.SetFrameBorderMode(0)
     #pad5.SetFrameFillStyle(4000)
-    pad5.SetBorderMode(1)
-    pad5.SetTopMargin(0)  # joins upper and lower plot
+    pad5.SetBorderMode(0)
+    pad5.SetTopMargin(0.)  # joins upper and lower plot
     
-    pad5.SetBottomMargin(0.45) #This is currently the bottommost pad
+    pad5.SetBottomMargin(bmg) #This is currently the bottommost pad
   
     if "Full" in varName:
         pad5.SetLogx()
@@ -616,7 +627,7 @@ def MainErrorBand(hMain,hUncUp,hUncDn,varName,norm,normFb):
             drawyTitle = "Events"
         MainGraph.GetYaxis().SetTitle(drawyTitle)
         #MainGraph.GetYaxis().CenterTitle()
-        MainGraph.GetYaxis().SetTitleSize(1.3*hMain.GetYaxis().GetTitleSize())
+        MainGraph.GetYaxis().SetTitleSize(ytilt_fac*hMain.GetYaxis().GetTitleSize())
         MainGraph.GetYaxis().SetLabelSize(1.1*hMain.GetYaxis().GetLabelSize()) #1.3
         if varName=="drz1z2":
             MainGraph.GetYaxis().SetTitleOffset(1.0)
@@ -659,6 +670,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     bottom_xy = myvar_dict[varName]['bottom_xy']
     xyP3 = myvar_dict[varName]['xyP3'] #for MC labels positioning
     xyP4 = myvar_dict[varName]['xyP4']
+    
     top_fontsize=myvar_dict[varName]['top_size']
     bottom_fontsize=myvar_dict[varName]['bottom_size']
     fontsizeP3=myvar_dict[varName]['size_P3']  #Font sizes for 3rd and 4th ratio panel label
@@ -983,7 +995,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         
         sigTex = getSigTextBox(0.15,0.8,sigLabel,0.14) #used?
         Ratio.Draw("PE1SAME")
-        line.SetLineColor(ROOT.kBlack)
+        #line.SetLineColor(ROOT.kBlack)
+        line.SetLineColor(ROOT.TColor.GetColor('#377eb8'))
         line.Draw("same")
 
         Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
@@ -1111,7 +1124,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #NNLOyaxis.SetTitle("Data/Theo.")
             NNLOyaxis.SetLabelFont(42)
             NNLOyaxis.SetLabelOffset(0.025) #0.01
-            NNLOyaxis.SetLabelSize(0.1) #0.1485
+            if not (EW_P4 and EW_corr):
+                NNLOyaxis.SetLabelSize(0.1) #0.1485
+            else:
+                NNLOyaxis.SetLabelSize(0.165) #0.1485
+
             NNLOyaxis.SetTitleFont(42)
             NNLOyaxis.SetTitleSize(0.12)
             NNLOyaxis.SetTitleOffset(0.365)
@@ -1173,6 +1190,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             #xaxis.ChangeLabel(9,0.9)
             #xaxis.ChangeLabel(10,1.0)
         xaxis.SetLabelFont(42)
+        #xaxis.SetLabelOffset(0.03)
         xaxis.SetLabelOffset(0.03)
         #xaxis.SetTickLength(0.1)
         if "Full" in varName and "Mass" in varName:
@@ -1181,7 +1199,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             xaxis.SetLabelSize(0.162)
         xaxis.SetTitleFont(42)
         xaxis.SetTitleSize(0.18)
-        xaxis.SetTitleOffset(1.2)
+        if EW_corr and EW_P4:
+            xaxis.SetTitleOffset(1.)
+        else:
+            xaxis.SetTitleOffset(1.2)
+
         if varName=="mass":
             xaxis.SetNoExponent(True)
         xaxis.Draw("SAME")
