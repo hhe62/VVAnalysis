@@ -71,6 +71,9 @@ today = datetime.date.today().strftime("%d%b%Y")
 #manager_path = ConfigureJobs.getManagerPath()
 EW_P4 = ("Mass" in args['variable'] and not "Full" in args['variable'] ) 
 
+#Currently don't plot EWK for non-m4l jet variables
+if not EW_P4:
+    EW_corr = False
 #Bottom margin for bottommost panel
 if (EW_corr and EW_P4):
     bmg = 0.4
