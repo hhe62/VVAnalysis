@@ -18,7 +18,9 @@ VFloat = Vec('float')
 include_MiNNLO = True
 EW_corr = True
 
-
+#Divison and ticklength for redrawn y axes
+yrdiv = 503
+yrtl = 0.02
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
@@ -579,9 +581,9 @@ def RatioErrorBand(Ratio,hUncUp,hUncDn,hTrueNoErrs,varName):
         ratioGraph.GetXaxis().SetLabelSize(0)
         ratioGraph.GetXaxis().SetTitleSize(0)
         if ratioBand_count ==1:
-            ratioGraph.GetYaxis().SetTickLength(0.03)
+            ratioGraph.GetYaxis().SetTickLength(0.0)
         else:
-            ratioGraph.GetYaxis().SetTickLength(0.045)
+            ratioGraph.GetYaxis().SetTickLength(0.0)
         #ratioGraph.GetYaxis().SetLabelSize(0)
         #ratioGraph.GetYaxis().SetTitleSize(0)
         ratioGraph.GetXaxis().SetLimits(Ratio.GetXaxis().GetXmin(),Ratio.GetXaxis().GetXmax())
@@ -1002,14 +1004,14 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         line.SetLineColor(ROOT.TColor.GetColor('#377eb8'))
         line.Draw("same")
 
-        Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
-        Altyaxis.SetNdivisions(003)
+        Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
+        Altyaxis.SetNdivisions(yrdiv)
         axText2=getAxisTextBox(0.06,0.0,"Data/Theo.",0.2,True)
         MCTextNom=getAxisTextBox(top_xy[0],top_xy[1],ratioName_nom,top_fontsize,False)
         
 
         #Altyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_nom)
-        Altyaxis.SetTickLength(0.)
+        Altyaxis.SetTickLength(yrtl)
         Altyaxis.SetLabelFont(42)
         Altyaxis.SetLabelOffset(0.025) #0.01
         if not include_MiNNLO:
@@ -1057,9 +1059,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize,False)
         AltTex = getSigTextBox(0.15,0.85,sigLabelAlt,0.11)
 
-        yaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
-        yaxis.SetNdivisions(003)
-        yaxis.SetTickLength(0.)
+        yaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
+        yaxis.SetNdivisions(yrdiv)
+        yaxis.SetTickLength(yrtl)
         #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
         #yaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
         #yaxis.SetTitle("Data/Theo.")
@@ -1119,9 +1121,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             MCTextNNLO=getAxisTextBox(xyP3[0],xyP3[1],ratioName_NNLO,fontsizeP3,False)
             NNLOTex = getSigTextBox(0.15,0.85,sigLabelNNLO,0.11)
 
-            NNLOyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
-            NNLOyaxis.SetNdivisions(003)
-            NNLOyaxis.SetTickLength(0.)
+            NNLOyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
+            NNLOyaxis.SetNdivisions(yrdiv)
+            NNLOyaxis.SetTickLength(yrtl)
             #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
             #NNLOyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
             #NNLOyaxis.SetTitle("Data/Theo.")
@@ -1150,9 +1152,9 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 MCTextEWC=getAxisTextBox(xyP4[0],xyP4[1],ratioName_EWC,fontsizeP4,False)
                 EWCTex = getSigTextBox(0.15,0.85,sigLabelEWC,0.11)
 
-                EWCyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"C")
-                EWCyaxis.SetNdivisions(003)
-                EWCyaxis.SetTickLength(0.)
+                EWCyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
+                EWCyaxis.SetNdivisions(yrdiv)
+                EWCyaxis.SetTickLength(yrtl/(1-bmg))
                 #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
                 #EWCyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
                 #EWCyaxis.SetTitle("Data/Theo.")
@@ -1198,6 +1200,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #xaxis.SetTickLength(0.1)
         if "Full" in varName and "Mass" in varName:
             xaxis.SetLabelSize(0.12)
+        elif "mjj" in varName:
+            xaxis.SetLabelSize(0.155)
         else:
             xaxis.SetLabelSize(0.162)
         xaxis.SetTitleFont(42)
