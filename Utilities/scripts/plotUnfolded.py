@@ -506,6 +506,29 @@ def rebin(hist,varName): #didn't handle error, but this function not actually us
     hist.SetBinContent(Nbins+1,0)
     return hist
 
+#Draw Y axis with ticks
+def getRYaxis(hUnf1,ratioErrorBand1,lastP):
+
+    Ryaxis = ROOT.TGaxis(hUnf1.GetXaxis().GetXmax(),ratioErrorBand1.GetMinimum(),hUnf1.GetXaxis().GetXmax(),ratioErrorBand1.GetMaximum(),ratioErrorBand1.GetMinimum(),ratioErrorBand1.GetMaximum(),3,"+CS")
+    Ryaxis.SetNdivisions(yrdiv)
+    if lastP:
+        Ryaxis.SetTickLength(yrtl/(1-bmg))
+    else:
+        Ryaxis.SetTickLength(yrtl)
+
+    #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
+    #Ryaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
+    #Ryaxis.SetTitle("Data/Theo.")
+    Ryaxis.SetLabelFont(42)
+    Ryaxis.SetLabelOffset(0.025) #0.01
+    Ryaxis.SetLabelSize(0.) #0.1485
+    Ryaxis.SetTitleFont(42)
+    Ryaxis.SetTitleSize(0.)
+    Ryaxis.SetTitleOffset(0.365)
+    Ryaxis.Draw("SAME")
+
+    return Ryaxis
+    
 def getLumiTextBox():
     texS = ROOT.TLatex(0.68,0.965, str(int(round(args['lumi'])))+" fb^{-1} (13 TeV)")
     texS.SetNDC()
@@ -1024,6 +1047,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         Altyaxis.SetTitleOffset(0.29) #0.29
         #Altyaxis.ChangeLabel(2,-1,0.189,-1,-1,-1,"2")
         Altyaxis.Draw("SAME")
+        AltyaxisR = getRYaxis(hUnf,ratioErrorBand,False)
         
         #ThirdPad
         pad3 = createPad3(c)
@@ -1077,6 +1101,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         yaxis.SetTitleOffset(0.365)
         yaxis.Draw("SAME")
         
+        yaxisR = getRYaxis(hUnf,ratioErrorBand,not include_MiNNLO)
+
         if include_MiNNLO:
             #Fourth pad
             pad4 = createPad4(c)
@@ -1125,6 +1151,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLOyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
             NNLOyaxis.SetNdivisions(yrdiv)
             NNLOyaxis.SetTickLength(yrtl)
+            if not (EW_corr and EW_P4):
+                NNLOyaxis.SetTickLength(yrtl/(1.-bmg))    
             #axText3=getAxisTextBox(0.06,0.0,"Data/%s"%ratioName_alt,0.23,True)
             #NNLOyaxis.SetTitle("#scale[1.2]{Data/%s}"%ratioName_alt)
             #NNLOyaxis.SetTitle("Data/Theo.")
@@ -1139,6 +1167,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLOyaxis.SetTitleSize(0.12)
             NNLOyaxis.SetTitleOffset(0.365)
             NNLOyaxis.Draw("SAME")
+
+            NNLOyaxisR = getRYaxis(hUnf,ratioErrorBand, not (EW_corr and EW_P4))
 
             if EW_P4 and EW_corr:
                 pad5 = createPad5(c)
@@ -1166,6 +1196,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 EWCyaxis.SetTitleSize(0.12)
                 EWCyaxis.SetTitleOffset(0.365)
                 EWCyaxis.Draw("SAME")
+                EWCyaxisR = getRYaxis(hUnf,ratioErrorBand, True)
 
 
         #redraw axis
@@ -1201,8 +1232,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #xaxis.SetTickLength(0.1)
         if "Full" in varName and "Mass" in varName:
             xaxis.SetLabelSize(0.12)
+        elif "Mass" in varName and not "All" in varName:
+            xaxis.SetLabelSize(0.15)
         elif "mjj" in varName:
-            xaxis.SetLabelSize(0.155)
+            xaxis.SetLabelSize(0.15)
         else:
             xaxis.SetLabelSize(0.162)
         xaxis.SetTitleFont(42)
