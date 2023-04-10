@@ -138,26 +138,26 @@ for key in dict.keys():
         dict[key]['top_xy']=(0.2,0.82)
         dict[key]['top_size']=0.2
         dict[key]['bottom_xy']=(0.2,0.82) #top and bottom different pad settings
-        dict[key]['xyP3']=(0.2,bmg+(1-bmg)*0.82)
+        dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*0.82,2))
         dict[key]['xyP4']=(0.2,0.82)
         dict[key]['bottom_size']=0.2
-        dict[key]['size_P3']=0.2*(1-bmg)
+        dict[key]['size_P3']=round(0.2*(1-bmg),2)
         dict[key]['size_P4']=0.15
         dict[key]['ymax_fac']=1.
         dict[key]['ymin_fac']=1.
         dict[key]['ymin_fac_extra']=1.
         dict[key]['ratio_max'] =1.8
         dict[key]['ratio_min'] = 0.4
-    if "Mass" in key and not "Full" in key:
+    if ("Mass" in key and not "Full" in key): #or "nJets" in key:
         bmg = 0.4
         dict[key]['top_xy']=(0.2,0.2)
         dict[key]['top_size']=0.2
         dict[key]['bottom_xy']=(0.2,0.2) #top and bottom different pad settings
         dict[key]['xyP3']=(0.2,0.2)
-        dict[key]['xyP4']=(0.2,bmg+(1-bmg)*0.2)
+        dict[key]['xyP4']=(0.2,round(bmg+(1-bmg)*0.2,2))
         dict[key]['bottom_size']=0.2
         dict[key]['size_P3']=0.2
-        dict[key]['size_P4']=0.2*(1-bmg)
+        dict[key]['size_P4']=round(0.2*(1-bmg),2)
         dict[key]['ratio_max'] = 1.2
         dict[key]['ratio_min'] = 0.3
         if not "All" in key:
@@ -165,15 +165,21 @@ for key in dict.keys():
             dict[key]['top_xy']=(0.2,0.82)
             dict[key]['top_size']=0.2
             dict[key]['bottom_xy']=(0.2,0.82) #top and bottom different pad settings
-            dict[key]['xyP3']=(0.2,0.82)
-            dict[key]['xyP4']=(0.2,bmg+(1-bmg)*0.82)
+            dict[key]['xyP4']=(0.2,0.82)
+            dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*0.82,2))
             dict[key]['bottom_size']=0.2
-            dict[key]['size_P3']=0.2
-            dict[key]['size_P4']=0.2*(1-bmg)  
+            dict[key]['size_P4']=0.2
+            dict[key]['size_P3']=round(0.2*(1-bmg),2)  
             dict[key]['ratio_min'] = 0.3
             if "0" in key:
                 dict[key]['ratio_max'] = 1.6
                 dict[key]['ratio_min'] = 0.2
+            
+            if "1" in key or "2" in key:
+                dict[key]['ratio_max'] = 1.8
+                dict[key]['top_size']=0.2
+                dict[key]['bottom_size']=0.2
+                dict[key]['size_P3']=round(0.2*(1-bmg),2)      
                 
 
 #Adjust settings for individual variables

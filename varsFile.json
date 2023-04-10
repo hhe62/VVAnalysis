@@ -26,14 +26,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 
@@ -111,12 +111,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -147,14 +147,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 
@@ -187,12 +187,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -225,12 +225,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -262,12 +262,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -298,14 +298,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 
@@ -338,12 +338,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -379,14 +379,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 
@@ -419,12 +419,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -460,14 +460,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 
@@ -543,12 +543,12 @@
             0.2, 
             0.82
         ], 
-        "size_P3": 0.11000000000000001, 
+        "size_P3": 0.11, 
         "responseClassNames": "testJet", 
         "size_P4": 0.15, 
         "xyP3": [
             0.2, 
-            0.901
+            0.9
         ], 
         "top_size": 0.2
     }, 
@@ -755,14 +755,14 @@
         "units": "[GeV]", 
         "xyP4": [
             0.2, 
-            0.8919999999999999
+            0.82
         ], 
-        "size_P3": 0.2, 
+        "size_P3": 0.12, 
         "responseClassNames": "testJet", 
-        "size_P4": 0.12, 
+        "size_P4": 0.2, 
         "xyP3": [
             0.2, 
-            0.82
+            0.89
         ], 
         "top_size": 0.2
     }, 

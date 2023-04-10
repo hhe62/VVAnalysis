@@ -71,7 +71,8 @@ args = getComLineArgs()
 today = datetime.date.today().strftime("%d%b%Y")
 
 #manager_path = ConfigureJobs.getManagerPath()
-EW_P4 = ("Mass" in args['variable'] and not "Full" in args['variable'] ) 
+#Only MassAllj should plot EWK correction
+EW_P4 = ("MassAllj" in args['variable'] and not "Full" in args['variable'] ) #or (args['variable'] == "nJets")
 
 #Currently don't plot EWK for non-m4l jet variables
 if not EW_P4:
