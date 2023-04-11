@@ -235,7 +235,7 @@
         "top_size": 0.2
     }, 
     "absjetEta[1]": {
-        "ratio_min": 0.4, 
+        "ratio_min": 0.3, 
         "top_xy": [
             0.2, 
             0.82
@@ -472,7 +472,7 @@
         "top_size": 0.2
     }, 
     "MassAllj": {
-        "ratio_min": 0.3, 
+        "ratio_min": 0.2, 
         "top_xy": [
             0.2, 
             0.2

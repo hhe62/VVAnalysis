@@ -159,7 +159,7 @@ for key in dict.keys():
         dict[key]['size_P3']=0.2
         dict[key]['size_P4']=round(0.2*(1-bmg),2)
         dict[key]['ratio_max'] = 1.2
-        dict[key]['ratio_min'] = 0.3
+        dict[key]['ratio_min'] = 0.2
         if not "All" in key:
             dict[key]['ratio_max'] = 1.8  
             dict[key]['top_xy']=(0.2,0.82)
@@ -186,6 +186,7 @@ for key in dict.keys():
 dict['jetPt[0]']['ratio_max'] = 2.99
 dict['nJets']['ratio_max'] = 2.5
 dict['jetPt[0]']['ratio_min'] = 0.4
+dict['absjetEta[1]']['ratio_min'] = 0.3
 dict['jetPt[0]']['ytilt_fac'] = 1.2
 dict['jetPt[1]']['ytilt_fac'] = 1.2
 
