@@ -21,6 +21,8 @@ EW_corr = True
 #Divison and ticklength for redrawn y axes
 yrdiv = 503
 yrtl = 0.02
+
+crossDrawOpt = "PESAME"
 #style = Style()
 #ROOT.gStyle.SetLineScalePS(1.8)
 ROOT.gStyle.SetOptDate(False)
@@ -598,6 +600,19 @@ def RatioErrorBand(Ratio,hUncUp,hUncDn,hTrueNoErrs,varName):
             #print "eUp/tru: ",eUp/tru
             #print "eDn/tru: ",eDn/tru
             #print "TotErrorUp: ",errorUp, "","TotErrorDn: ",errorDn
+            
+            #if "Mass" in varName and not "Full" in varName:
+            #    if i==0:
+            #        print("=======Test stat+sys vs stat========")
+            #    print("Bin %s stat, sys up,dn"%i)
+            #    print(tmpData.GetBinError(i),eUp/tru,eDn/tru)
+            #    print("Ratio stat+sys/stat up/dn")
+            #    print(errorUp/tmpData.GetBinError(i),errorDn/tmpData.GetBinError(i))
+
+            #    errorUp = errorUp#*1.04
+            #    errorDn = errorDn#*1.04
+
+
             ratioGraph.SetPointEYhigh(i-1, errorUp)
             ratioGraph.SetPointEYlow(i-1, errorDn)
         ratioGraph.SetFillColorAlpha(1,0.3)
@@ -895,7 +910,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         hUnf.GetXaxis().SetTitle("")
         hUnf.GetXaxis().SetLabelSize(0)
         hUnf.GetXaxis().SetTitleSize(0)
-        hUnf.Draw("PE1SAME")
+        hUnf.Draw(crossDrawOpt)
 
         axismaximum = max([hUnf.GetMaximum(),hTrue.GetMaximum(),hTrueAlt.GetMaximum(),UnfErrBand.GetMaximum()])
         if include_MiNNLO:
@@ -1023,7 +1038,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         ratioErrorBand.Draw("a2")
         
         sigTex = getSigTextBox(0.15,0.8,sigLabel,0.14) #used?
-        Ratio.Draw("PE1SAME")
+        Ratio.Draw(crossDrawOpt)
         #line.SetLineColor(ROOT.kBlack)
         line.SetLineColor(ROOT.TColor.GetColor('#377eb8'))
         line.Draw("same")
@@ -1076,7 +1091,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #    AltRatio.GetXaxis().SetNdivisions(505)
         #    AltRatio.GetXaxis().CenterLabels(True)
         
-        AltRatio.Draw("PE1SAME")
+        AltRatio.Draw(crossDrawOpt)
         #ratioErrorBand.Draw("p")
         Altline.SetLineColor(ROOT.kRed)
         Altline.Draw("same")
@@ -1128,7 +1143,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             NNLORatioErrorBand.GetYaxis().SetLabelSize(0)
             NNLORatioErrorBand.GetYaxis().SetTitleSize(0)
             NNLORatioErrorBand.Draw("a2")
-            NNLORatio.Draw("PE1SAME")
+            NNLORatio.Draw(crossDrawOpt)
 
             if EW_P4 and EW_corr:
                 EWCRatioErrorBand = RatioErrorBand(EWCRatio,hUncUp,hUncDn,hTrueEWCNoErrs,varName) 
@@ -1137,7 +1152,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
             if EW_corr and not EW_P4:
                 EWCRatio.SetLineColor(ROOT.kOrange)
-                EWCRatio.Draw("PE1SAME")
+                EWCRatio.Draw(crossDrawOpt)
 
             #ratioErrorBand.Draw("p")
             NNLOline.SetLineColor(ROOT.kViolet)
@@ -1174,7 +1189,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 pad5 = createPad5(c)
 
                 EWCRatioErrorBand.Draw("a2")
-                EWCRatio.Draw("PE1SAME")
+                EWCRatio.Draw(crossDrawOpt)
                 EWCline.SetLineColor(ROOT.kOrange)
                 EWCline.Draw("same")
 
