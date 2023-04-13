@@ -72,6 +72,8 @@ args = getComLineArgs()
 
 today = datetime.date.today().strftime("%d%b%Y")
 
+if "Full" in args['variable']:
+    include_MiNNLO = False
 #manager_path = ConfigureJobs.getManagerPath()
 #Only MassAllj should plot EWK correction
 EW_P4 = ("MassAllj" in args['variable'] and not "Full" in args['variable'] ) #or (args['variable'] == "nJets")
@@ -89,7 +91,8 @@ else:
 lastbpw = round(bpwidth/(1.-bmg),2)
 #y direction separation points of the panels
 if not include_MiNNLO:
-    panel_breakpoints = [0.03,0.20,0.33]
+    #panel_breakpoints = [0.03,0.20,0.33]
+    panel_breakpoints = [0.01,0.01+lastbpw,round(0.01+lastbpw+bpwidth,2)]
 else:
     panel_breakpoints = [0.01,0.01+lastbpw] + [round(0.01+lastbpw+bpwidth*bpind,2) for bpind in range(1,3)]
     if EW_P4 and EW_corr:
@@ -1096,7 +1099,11 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         Altline.SetLineColor(ROOT.kRed)
         Altline.Draw("same")
         
-        MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize,False)
+        if include_MiNNLO:
+            MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize,False)
+        else:
+            MCTextAlt=getAxisTextBox(bottom_xy[0],bottom_xy[1],ratioName_alt,bottom_fontsize*(1-bmg),False)
+
         AltTex = getSigTextBox(0.15,0.85,sigLabelAlt,0.11)
 
         yaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
@@ -1108,7 +1115,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         yaxis.SetLabelFont(42)
         yaxis.SetLabelOffset(0.025) #0.01
         if not include_MiNNLO:
-            yaxis.SetLabelSize(0.1485)
+            yaxis.SetLabelSize(0.108)
         else:
             yaxis.SetLabelSize(0.163)
         yaxis.SetTitleFont(42)

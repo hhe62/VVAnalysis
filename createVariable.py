@@ -208,15 +208,29 @@ dict['jetPt[1]']['ymin_fac_extra'] =0.3
 
 #dict['Mass4j']['top_xy'] = (0.6,0.87)
 #dict['Mass4j']['bottom_xy'] = (0.6,0.91)
+bmg = 0.45
+
+dict['MassFull']['top_xy'] = (0.4,0.87)
+dict['MassFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.87,2))
+dict['MassFull']['ymax_fac'] = 1.
+
+dict['Mass0jFull']['top_xy'] = (0.4,0.87)
+dict['Mass0jFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.87,2))
+dict['Mass0jFull']['ymax_fac'] = 1
+dict['Mass0jFull']['ratio_min'] = 0.2
+dict['Mass0jFull']['ratio_max'] = 1.3
 
 dict['Mass1jFull']['top_xy'] = (0.4,0.87)
-dict['Mass1jFull']['bottom_xy'] = (0.4,0.91)
+dict['Mass1jFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.87,2))
+dict['Mass1jFull']['ymax_fac'] = 1.3
 dict['Mass2jFull']['top_xy'] = (0.37,0.87)
-dict['Mass2jFull']['bottom_xy'] = (0.37,0.91)
+dict['Mass2jFull']['bottom_xy'] = (0.37,round(bmg+(1-bmg)*0.87,2))
+dict['Mass2jFull']['ymax_fac'] = 1.5
 dict['Mass34jFull']['top_xy'] = (0.37,0.87)
-dict['Mass34jFull']['bottom_xy'] = (0.37,0.91)
+dict['Mass34jFull']['bottom_xy'] = (0.37,round(bmg+(1-bmg)*0.87,2))
+dict['Mass34jFull']['ymax_fac'] = 1.5
 dict['Mass4jFull']['top_xy'] = (0.5,0.87)
-dict['Mass4jFull']['bottom_xy'] = (0.5,0.91)
+dict['Mass4jFull']['bottom_xy'] = (0.5,0.87)
 
 with open(outputname,'w') as output_file:
   json.dump(dict,output_file,indent=4)
