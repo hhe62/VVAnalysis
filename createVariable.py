@@ -41,11 +41,11 @@ for var in varlist:
         dict[var]["_binning"] = [100.,200.,400.,600.,1000.] 
 
     if nj in ['0','1']:    
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jet)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%s jet)"%nj
     elif nj == "All":
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%sJets)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%sJets)"%nj
     else:
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%s jets)"%nj
     dict[var]["responseClassNames"] = 'testJet'
 
 for var in varlistFull:
@@ -64,11 +64,11 @@ for var in varlistFull:
         dict[var]["_binning"] = [80.,100.,120.,130.,180.,230.,300.,450.,600.,800.,1300.]
 
     if nj in ['0','1']:
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jet)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%s jet)"%nj
     elif nj == "All":
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%sJets)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%sJets)"%nj
     else:
-        dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
+        dict[var]["prettyVars"] = 'm_{4\\ell}' #+ "(%s jets)"%nj
 
     dict[var]["responseClassNames"] = 'testJet'
 #====================================================================================    

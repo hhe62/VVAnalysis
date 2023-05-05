@@ -987,11 +987,22 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         sigLabel = "POWHEG+MCFM+Pythia8" #used?
         sigLabelAlt = "MG5_aMC@NLO+MCFM+Pythia8"
 
-        if varName in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+        if varName in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
             if varName in ["jetPt[0]","absjetEta[0]"]:
                 nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 1 jet",0.04,False)
-            if varName in ["jetPt[1]","absjetEta[1]"]:
+            if varName in ["jetPt[1]","absjetEta[1]","mjj","dEtajj"]:
                 nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 2 jets",0.04,False)
+        
+        if "Mass" in varName:
+            if "0" in varName:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 0 jet",0.04,False)
+            if "1" in varName:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 1 jet",0.04,False)
+            if "2" in varName:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 2 jets",0.04,False)
+            if "34" in varName:
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 3 jets",0.04,False)
+
         #if varName=="dphiz1z2" or varName=="drz1z2":
         #    leg = ROOT.TLegend(0.15,0.60,0.15+0.015*len(sigLabelAlt),0.90,"")
         #elif varName=="leppt":
