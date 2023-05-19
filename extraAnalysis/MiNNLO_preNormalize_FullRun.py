@@ -17,7 +17,7 @@ def rebin(hist,varName):
     if varName not in ['eta']:
         bins=array.array('d',_binning[varName])
         Nbins=len(bins)-1 
-        hist=hist.Rebin(Nbins,"",bins)
+        hist=hist.Rebin(Nbins,hist.GetName()+"NoConfusion",bins)
     else:
         Nbins = hist.GetSize() - 2
     add_overflow = hist.GetBinContent(Nbins) + hist.GetBinContent(Nbins + 1)
@@ -51,8 +51,11 @@ def printr(l,ro):
 
 #fqq = ROOT.TFile("qqOutputHistMiNNLO.root")
 #fgg = ROOT.TFile("ggOutputHistMiNNLO.root")
-fqq = ROOT.TFile("Hist_qqcompleteFullFix.root")
-fgg = ROOT.TFile("Hist_ggcompleteFullFix.root")
+#fqq = ROOT.TFile("Hist_qqcompleteFullFix.root")
+#fgg = ROOT.TFile("Hist_ggcompleteFullFix.root")
+
+fqq = ROOT.TFile("Hist_qqcompleteFulldPhi.root")
+fgg = ROOT.TFile("Hist_ggcompleteFulldPhi.root")
 
 #vars = ["MassAllj","nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
 #vars2 = ["m4l","CleanJet","DiJetMass","DeltaEtajj","LeadingJetPt","SubLeadingJetPt","LeadingJetEta","SubLeadingJetEta"]
@@ -61,9 +64,10 @@ vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1
 vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","m4l","Mass0j","Mass1j","Mass2j","Mass34j"] #only need to switch histogram name for m4l
 kfacs = [1.02244,0.98414,0.97058,0.95705,0.95456,0.92758,0.91712,0.87614,0.81093]
 
-
-vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
-vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
+#vars = ["nJets"]
+#vars2 = ["nJets"]
+#vars = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
+#vars2 = ["nJets","mjj","dEtajj","jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]
 
 #xsec in fiducial region https://arxiv.org/pdf/2108.05337.pdf, no longer needed since the LHE events are normalized to inclusive cross sections
 qqxsec = 17.45
