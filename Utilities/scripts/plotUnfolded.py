@@ -553,7 +553,7 @@ def getLumiTextBox():
     texS2.SetTextFont(52)
     texS2.SetTextColor(ROOT.kBlack)
     texS2.SetTextSize(0.045)
-    texS2.Draw()
+    #texS2.Draw()
     return texS,texS1,texS2
 
 def getSigTextBox(x,y,sigLabel,size): #check whether actually used
@@ -744,7 +744,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             hTrueEWC = hTruthEWC.Clone()    
     #lumi provided already in fb-1
     lumifb = lumi
-
+    print("======================hUnf Integral before normalization: %s========================"%hUnf.Integral(1,hUnf.GetNbinsX()))
     if norm:
         hUnf.Scale(1.0/(hUnf.Integral(1,hUnf.GetNbinsX())))
     elif normFb:
@@ -878,6 +878,17 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #    hTrue.SetMaximum(Unfmaximum*args["scaleymax"]*ymax_fac)
         #else:
         #    hTrue.SetMaximum(Truthmaximum*args["scaleymax"]*ymax_fac)
+
+        #Print bin content:
+        xsecfac = 40.5
+        print("==========Info: Unfolded bin content, total uncup,uncdn, and MiNNLO bin content and bin err=====================")
+        print([xsecfac*hUnf.GetBinContent(infotmp) for infotmp in range(1,hUnf.GetNbinsX()+1)])
+        print([xsecfac*math.sqrt((hUncUp.GetBinContent(infotmp))**2+(hUnf.GetBinError(infotmp))**2) for infotmp in range(1,hUnf.GetNbinsX()+1)])
+        print([xsecfac*math.sqrt((hUncDn.GetBinContent(infotmp))**2+(hUnf.GetBinError(infotmp))**2) for infotmp in range(1,hUnf.GetNbinsX()+1)])
+        if include_MiNNLO:
+            print([xsecfac*hTrueNNLO.GetBinContent(infotmp) for infotmp in range(1,hUnf.GetNbinsX()+1)])
+            print([xsecfac*hTrueNNLO.GetBinError(infotmp) for infotmp in range(1,hUnf.GetNbinsX()+1)])
+        print("===================================================")
 
         hTrue.GetXaxis().SetTitle("")
 
