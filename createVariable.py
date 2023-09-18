@@ -119,11 +119,11 @@ for i,var in enumerate(["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]):
 #change axis range and MC symbol location
 for key in dict.keys():
     dict[key]['top_xy']=(0.2,0.87)
-    dict[key]['top_size']=0.2
+    dict[key]['top_size']=0.25
     dict[key]['bottom_xy']=(0.2,0.91) #top and bottom different pad settings
     dict[key]['xyP3']=(0.2,0.91)
     dict[key]['xyP4']=(0.2,0.91)
-    dict[key]['bottom_size']=0.2
+    dict[key]['bottom_size']=0.25
     dict[key]['size_P3']=0.15
     dict[key]['size_P4']=0.15
     dict[key]['ymax_fac']=1.
@@ -135,13 +135,13 @@ for key in dict.keys():
 
     if not "Mass" in key and not "Full" in key:
         bmg = 0.45
-        dict[key]['top_xy']=(0.2,0.82)
-        dict[key]['top_size']=0.2
-        dict[key]['bottom_xy']=(0.2,0.82) #top and bottom different pad settings
-        dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*0.82,2))
+        dict[key]['top_xy']=(0.2,0.78)
+        dict[key]['top_size']=0.25
+        dict[key]['bottom_xy']=(0.2,0.78) #top and bottom different pad settings
+        dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*dict[key]['bottom_xy'][1],2))
         dict[key]['xyP4']=(0.2,0.82)
-        dict[key]['bottom_size']=0.2
-        dict[key]['size_P3']=round(0.2*(1-bmg),2)
+        dict[key]['bottom_size']=0.25
+        dict[key]['size_P3']=round(dict[key]['bottom_size']*(1-bmg),2)
         dict[key]['size_P4']=0.15
         dict[key]['ymax_fac']=1.
         dict[key]['ymin_fac']=1.
@@ -151,25 +151,25 @@ for key in dict.keys():
     if ("Mass" in key and not "Full" in key): #or "nJets" in key:
         bmg = 0.4
         dict[key]['top_xy']=(0.2,0.2)
-        dict[key]['top_size']=0.2
+        dict[key]['top_size']=0.27
         dict[key]['bottom_xy']=(0.2,0.2) #top and bottom different pad settings
         dict[key]['xyP3']=(0.2,0.2)
         dict[key]['xyP4']=(0.2,round(bmg+(1-bmg)*0.2,2))
-        dict[key]['bottom_size']=0.2
-        dict[key]['size_P3']=0.2
-        dict[key]['size_P4']=round(0.2*(1-bmg),2)
+        dict[key]['bottom_size']=0.27
+        dict[key]['size_P3']=0.27
+        dict[key]['size_P4']=round(dict[key]['size_P3']*(1-bmg),2)
         dict[key]['ratio_max'] = 1.2
         dict[key]['ratio_min'] = 0.2
         if not "All" in key:
             dict[key]['ratio_max'] = 1.8  
-            dict[key]['top_xy']=(0.2,0.82)
-            dict[key]['top_size']=0.2
-            dict[key]['bottom_xy']=(0.2,0.82) #top and bottom different pad settings
+            dict[key]['top_xy']=(0.2,0.78)
+            dict[key]['top_size']=0.25
+            dict[key]['bottom_xy']=(0.2,0.78) #top and bottom different pad settings
             dict[key]['xyP4']=(0.2,0.82)
-            dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*0.82,2))
-            dict[key]['bottom_size']=0.2
+            dict[key]['xyP3']=(0.2,round(bmg+(1-bmg)*0.78,2))
+            dict[key]['bottom_size']=0.25
             dict[key]['size_P4']=0.2
-            dict[key]['size_P3']=round(0.2*(1-bmg),2)  
+            dict[key]['size_P3']=round(dict[key]['bottom_size']*(1-bmg),2)  
             dict[key]['ratio_min'] = 0.3
             if "0" in key:
                 dict[key]['ratio_max'] = 1.6
@@ -177,9 +177,9 @@ for key in dict.keys():
             
             if "1" in key or "2" in key:
                 dict[key]['ratio_max'] = 1.8
-                dict[key]['top_size']=0.2
-                dict[key]['bottom_size']=0.2
-                dict[key]['size_P3']=round(0.2*(1-bmg),2)      
+                dict[key]['top_size']=0.25
+                dict[key]['bottom_size']=0.25
+                dict[key]['size_P3']=round(dict[key]['bottom_size']*(1-bmg),2)      
                 
 
 #Adjust settings for individual variables
@@ -195,9 +195,9 @@ dict['jetPt[1]']['ytilt_fac'] = 1.2
 
 
 dict['jetPt[1]']['ymax_fac'] = 1.
-dict['absjetEta[1]']['ymax_fac'] = 1.3
-dict['absjetEta[0]']['ymax_fac'] = 1.3
-dict['dEtajj']['ymax_fac'] = 1.2
+dict['absjetEta[1]']['ymax_fac'] = 2
+dict['absjetEta[0]']['ymax_fac'] = 2
+dict['dEtajj']['ymax_fac'] = 1.6
 dict['jetPt[1]']['ratio_max'] = 2.99
 dict['jetPt[1]']['ratio_min'] = 0.4
 #dict['jetPt[1]']['top_xy'] = (0.6,0.87)
@@ -210,26 +210,28 @@ dict['jetPt[1]']['ymin_fac_extra'] =0.3
 #dict['Mass4j']['bottom_xy'] = (0.6,0.91)
 bmg = 0.45
 
-dict['MassFull']['top_xy'] = (0.4,0.82)
-dict['MassFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.82,2))
-dict['MassFull']['ymax_fac'] = 1.
-dict['MassFull']['top_size']=0.2
-dict['MassFull']['bottom_size']=0.2
+dict['Mass2j']['top_xy'] = (0.2,0.80)
+
+dict['MassFull']['top_xy'] = (0.4,0.78)
+dict['MassFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.78,2))
+dict['MassFull']['ymax_fac'] = 1
+dict['MassFull']['top_size']=0.25
+dict['MassFull']['bottom_size']=0.25
 
 dict['Mass0jFull']['top_xy'] = (0.37,0.2)
 dict['Mass0jFull']['bottom_xy'] = (0.37,round(bmg+(1-bmg)*0.2,2))
-dict['Mass0jFull']['ymax_fac'] = 1
+dict['Mass0jFull']['ymax_fac'] = 1.3
 dict['Mass0jFull']['ratio_min'] = 0.2
 dict['Mass0jFull']['ratio_max'] = 1.3
 
-dict['Mass1jFull']['top_xy'] = (0.4,0.82)
-dict['Mass1jFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.82,2))
+dict['Mass1jFull']['top_xy'] = (0.4,0.78)
+dict['Mass1jFull']['bottom_xy'] = (0.4,round(bmg+(1-bmg)*0.78,2))
 dict['Mass1jFull']['ymax_fac'] = 1.3
-dict['Mass2jFull']['top_xy'] = (0.42,0.82)
-dict['Mass2jFull']['bottom_xy'] = (0.42,round(bmg+(1-bmg)*0.82,2))
+dict['Mass2jFull']['top_xy'] = (0.42,0.78)
+dict['Mass2jFull']['bottom_xy'] = (0.42,round(bmg+(1-bmg)*0.78,2))
 dict['Mass2jFull']['ymax_fac'] = 1.5
-dict['Mass34jFull']['top_xy'] = (0.37,0.82)
-dict['Mass34jFull']['bottom_xy'] = (0.37,round(bmg+(1-bmg)*0.82,2))
+dict['Mass34jFull']['top_xy'] = (0.6,0.78)
+dict['Mass34jFull']['bottom_xy'] = (0.6,round(bmg+(1-bmg)*0.78,2))
 dict['Mass34jFull']['ymax_fac'] = 1.5
 dict['Mass4jFull']['top_xy'] = (0.5,0.87)
 dict['Mass4jFull']['bottom_xy'] = (0.5,0.87)

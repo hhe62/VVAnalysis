@@ -1,0 +1,39 @@
+{
+    "EWK": [
+        "zz4l-amcatnlo", 
+        "ggZZ4e", 
+        "ggZZ4m", 
+        "ggZZ4t", 
+        "ggZZ2e2mu", 
+        "ggZZ2e2tau", 
+        "ggHZZ", 
+        "vbfHZZ", 
+        "WplusHToZZ", 
+        "WminusHToZZ", 
+        "ZHToZZ_4L", 
+        "ttH_HToZZ_4L"
+    ], 
+    "sigLabel": "MG5_aMC@NLO+MCFM+Pythia8", 
+    "sigLabelAlt": "POWHEG+MCFM+Pythia8", 
+    "fFull": "Full_notHadd_recovered150.root", 
+    "reg": true, 
+    "nomname": "zz4l-amcatnlo", 
+    "f18": "2018Full_MassFull.root", 
+    "altname": "zz4l-powheg", 
+    "altEWK": [
+        "zz4l-powheg", 
+        "ggZZ4e", 
+        "ggZZ4m", 
+        "ggZZ4t", 
+        "ggZZ2e2mu", 
+        "ggZZ2e2tau", 
+        "ggHZZ", 
+        "vbfHZZ", 
+        "WplusHToZZ", 
+        "WminusHToZZ", 
+        "ZHToZZ_4L", 
+        "ttH_HToZZ_4L"
+    ], 
+    "f16": "2016Full_MassFull.root", 
+    "f17": "2017Full_MassFull.root"
+}

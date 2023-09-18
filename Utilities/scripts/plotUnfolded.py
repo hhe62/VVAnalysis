@@ -355,7 +355,7 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=Non
     #legend.SetFillStyle(0)
     legend.SetFillColor(ROOT.kWhite)
     legend.SetBorderSize(2)
-    legend.SetTextSize(0.025) #0.033
+    legend.SetTextSize(0.037) #0.033 #0.025
     legend.SetTextColor(ROOT.kBlack)
     with open('listFile.json') as list_json_file:
         mylist_dict = json.load(list_json_file)
@@ -984,7 +984,12 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         unique_entries = min(2, 8)
         ymax = 0.45 if varName=="leppt" else 0.915
         ycoords = [ymax, ymax - 0.08*unique_entries*args['scalelegy']]
-        coords = [xcoords[0]-0.1, ycoords[0], xcoords[1], ycoords[1]] #extended legend frame
+        coordy_subtract = 0.05
+        if varName == "MassAllj":
+            coordy_subtract = 0.08
+        if "Full" in varName:
+            coordy_subtract = 0.0
+        coords = [xcoords[0]-0.1, ycoords[0], xcoords[1], ycoords[1]-coordy_subtract] #extended legend frame
         if not include_MiNNLO:
             legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords)
         else:
@@ -1000,19 +1005,19 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
         if varName in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
             if varName in ["jetPt[0]","absjetEta[0]"]:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 1 jet",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 1 jet",0.06,False)
             if varName in ["jetPt[1]","absjetEta[1]","mjj","dEtajj"]:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 2 jets",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 2 jets",0.06,False)
         
         if "Mass" in varName:
             if "0" in varName:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with 0 jet",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 0 jet",0.06,False)
             if "1" in varName:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with 1 jet",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 1 jet",0.06,False)
             if "2" in varName:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with 2 jets",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with 2 jets",0.06,False)
             if "34" in varName:
-                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 3 jets",0.04,False)
+                nJetsText=getAxisTextBox(0.17,0.1,"Events with #geq 3 jets",0.06,False)
 
         #if varName=="dphiz1z2" or varName=="drz1z2":
         #    leg = ROOT.TLegend(0.15,0.60,0.15+0.015*len(sigLabelAlt),0.90,"")
@@ -1070,7 +1075,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
         Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
         Altyaxis.SetNdivisions(yrdiv)
-        axText2=getAxisTextBox(0.06,0.0,"Data/Theo.",0.2,True)
+        dataTheoSize = 0.2
+        if varName == "MassAllj":
+            dataTheoSize = 0.22
+        axText2=getAxisTextBox(0.06,0.0,"Data/Theo.",dataTheoSize,True)
         MCTextNom=getAxisTextBox(top_xy[0],top_xy[1],ratioName_nom,top_fontsize,False)
         
 
