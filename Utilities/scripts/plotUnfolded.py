@@ -817,7 +817,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             normalizeBins(hUncDn)
 
         #A good place to do extraction for HEPData, where hUnf and hUncUp and hUncDn are fully normalized
-        quicksave = True
+        quicksave = False
         if quicksave:
             if os.path.isfile("HEPData_extraction.root"): #redundant check
                 extractionFile = ROOT.TFile("HEPData_extraction.root","UPDATE")
