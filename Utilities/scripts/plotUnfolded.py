@@ -816,6 +816,21 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             normalizeBins(hUncUp)
             normalizeBins(hUncDn)
 
+        #A good place to do extraction for HEPData, where hUnf and hUncUp and hUncDn are fully normalized
+        quicksave = True
+        if quicksave:
+            if os.path.isfile("HEPData_extraction.root"): #redundant check
+                extractionFile = ROOT.TFile("HEPData_extraction.root","UPDATE")
+            else: 
+                extractionFile = ROOT.TFile("HEPData_extraction.root","RECREATE")
+
+            extractionFile.cd()
+            hUnf.Write()
+            hUncUp.Write()
+            hUncDn.Write()
+            print("Extracted hists for HEPData")
+            sys.exit()
+
         if norm:
             trueInt = hTrue.Integral(1,hTrue.GetNbinsX())
             hTrue.Scale(1.0/trueInt)
@@ -1394,6 +1409,8 @@ for varName in runVariables:
         hUncUp = fUse.Get(chan+"_"+varName+"_totUncUp") 
         hUncDn = fUse.Get(chan+"_"+varName+"_totUncDown")
         #print "UnfoldOutDir:",UnfoldOutDir
+        print("Somehow channel plots get called")
+        sys.exit()
         generatePlots(hUnfolded[chan],hUncUp,hUncDn,hTrue[chan],hTrueAlt[chan],varName,norm,normFb,args['lumi'],UnfoldOutDir)
     
     if args['makeTotals']:
