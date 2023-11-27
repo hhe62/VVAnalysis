@@ -9,7 +9,7 @@ import array
 folders = ["16Error","17Error","18Error"]
 varstr = "nJets mjj dEtajj jetPt[0] jetPt[1] absjetEta[0] absjetEta[1] MassAllj Mass0j Mass1j Mass2j Mass3j Mass34j Mass4j MassFull Mass0jFull Mass1jFull Mass2jFull Mass3jFull Mass34jFull Mass4jFull"
 vars = varstr.split(" ")
-#vars = ["nJets", "mjj"]
+#vars = ["MassAllj"]
 
 def combineYears(l16,l17,l18,w16,w17,w18):
     lcorr = [w16*x+w17*y+w18*z for (x,y,z) in zip(l16,l17,l18)]
@@ -133,7 +133,7 @@ for var in vars:
 
             if tot_corrUp == []:
                 if sys == "stat":
-                    random = [1,2,3] #just space holder
+                    pass #just space holder
                     #Don't add stat so that plotUnf script works properly
                     #tot_corrUp,tot_uncorrUp = upuncorr,upuncorr
                     #tot_corrDn,tot_uncorrDn = upuncorr,upuncorr
@@ -143,7 +143,7 @@ for var in vars:
 
             else:
                 if sys == "stat":
-                    random = [1,2,3] #just space holder
+                    pass #just space holder
                     #Don't add stat so that plotUnf script works properly
                     #tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upuncorr),sqrt_sum(tot_uncorrUp,upuncorr)
                     #tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,upuncorr),sqrt_sum(tot_uncorrDn,upuncorr)
@@ -168,6 +168,9 @@ for var in vars:
             unc_uncorr = max(sumListAbs(upuncorr),sumListAbs(dnuncorr))
 
             #change up/down properly for tot unc. calculation
+            #A concern is that the combined uncorrelated unc. loses the sign due to sqrt,
+            #so sep_up_dn may not determine up/down properly.  
+            #But the only affected unc is JER (uncorrelated), and in general up/down unc should be similar
             upcorr,dncorr = sep_up_dn(upcorr,dncorr)
             upuncorr, dnuncorr = sep_up_dn(upuncorr,dnuncorr)
 
@@ -204,6 +207,7 @@ for var in vars:
     totunc_corr = max(sumListAbs(tot_corrUp),sumListAbs(tot_corrDn))
     totunc_uncorr = max(sumListAbs(tot_uncorrUp),sumListAbs(tot_uncorrDn))
 
+    #For each variable, sort unc according to size of unc. (corr means treating JES as fully correlated across years)
     fn_corra = np.array(fn_corr)
     ind = (-fn_corra).argsort()
     fn_sys,fn_corr,fn_uncorr = [np.take(x,ind) for x in [fn_sys,fn_corr,fn_uncorr]]
@@ -214,12 +218,16 @@ for var in vars:
 
     FillDic[var] = [tot_corrUp, tot_corrDn]
 
+#sort variables according to jes_list (percentage diff between corr and uncorr)
 jes_lista = np.array(jes_list)
 indjes = (-jes_lista).argsort()
 vars_sort = vars
 vars_sort = np.take(vars_sort,indjes)
 
-printTable = True
+#====================================================================================
+#Print error summary table for paper
+#====================================================================================
+printTable = False
 if printTable:
     
     #uncomment 1 of the 3 needed
@@ -232,6 +240,7 @@ if printTable:
     for n,var in enumerate(varP.split(" ")):
         fn_sys,fn_corr,fn_uncorr,final_corr,final_uncorr = dicComb[var]
         if n==0:
+            #sysdict is used to get the range of the representative unc. numbers among all the jet variables for each specific systematic
             sysdict = {}
             print(fn_sys)
             for k,nsys in enumerate(fn_sys):
@@ -279,7 +288,9 @@ if printTable:
     del sys
     import sys
     sys.exit()
+#==========================================================================
 
+#For jet-related systematic study
 for var in vars_sort:
 
     print("====%s==="%var)
@@ -290,12 +301,13 @@ for var in vars_sort:
     
     print("Total uncertainty with jes correlated:%.4f uncorrelated:%.4f, relative diff %.4f"%(final_corr,final_uncorr, abs(final_corr-final_uncorr)/final_corr))
 
+
 with open('varsFile.json') as var_json_file:
     myvar_dict = json.load(var_json_file)
 
-#Files with tot unc hists removed
+#File with combined results (hadd). Transfer some original histograms to new output file and add in the new unc histograms
 fr2 = ROOT.TFile("Full.root","READ")
-fout = ROOT.TFile("out.root","UPDATE")
+fout = ROOT.TFile("out.root","RECREATE")
 for var in vars:
 
     totarea = sum(areas[var])
@@ -307,12 +319,14 @@ for var in vars:
         totUncUp = FillDic[var][0][i-1]
         totUncDn = FillDic[var][1][i-1]
         #pdb.set_trace()
+
+        #multiply by totarea (total unfolded events) since in plotting script the unc hist will be normalized by totarea
         hUncUp.SetBinContent(i,totUncUp*totarea)
         hUncDn.SetBinContent(i,totUncDn*totarea)
         print("Unc bin content:")
         print(i,totUncUp*totarea)
 
-    #Command line tool doesn't work for some hist so have to do it manually
+    #Command line root tool doesn't seem to work for some hist, so have to do it "manually" here
     fr2.cd()
     olddata = fr2.Get("tot_%s_data"%var)
     oldtrue = fr2.Get("tot_%s_true"%var)
