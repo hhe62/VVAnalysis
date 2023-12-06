@@ -2,6 +2,7 @@ import ROOT
 import pdb,json
 import numpy as np
 import array
+import math
 
 #======================================
 #Name folders starting with 16,17,18, put 16,17,18.root into folders
@@ -13,7 +14,7 @@ vars = varstr.split(" ")
 
 def combineYears(l16,l17,l18,w16,w17,w18):
     lcorr = [w16*x+w17*y+w18*z for (x,y,z) in zip(l16,l17,l18)]
-    luncorr = [((w16*x)**2+(w17*y)**2+(w18*z)**2)**0.5 for (x,y,z) in zip(l16,l17,l18)]
+    luncorr = [math.copysign(1.0,z)*((w16*x)**2+(w17*y)**2+(w18*z)**2)**0.5 for (x,y,z) in zip(l16,l17,l18)]
     return lcorr,luncorr
 
 def sumListAbs(l):
@@ -126,10 +127,10 @@ for var in vars:
             unc_corr = sumListAbs(upcorr)
             unc_uncorr = sumListAbs(upuncorr)
 
-            if sys == "stat":
-                print("Stat Error Corr/Uncorr:")
-                print(upcorr)
-                print(upuncorr)
+            #if sys == "stat":
+                #print("Stat Error Corr/Uncorr:")
+                #print(upcorr)
+                #print(upuncorr)
 
             if tot_corrUp == []:
                 if sys == "stat":
@@ -178,7 +179,7 @@ for var in vars:
                 if sys == "jes":
                     tot_corrUp,tot_uncorrUp = upcorr,upuncorr
                     tot_corrDn,tot_uncorrDn = dncorr,dnuncorr
-                if sys == "jer":
+                elif sys == "jer":
                     tot_corrUp,tot_uncorrUp = upuncorr,upuncorr
                     tot_corrDn,tot_uncorrDn = dnuncorr,dnuncorr
                 else:
@@ -190,7 +191,7 @@ for var in vars:
                     tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upcorr),sqrt_sum(tot_uncorrUp,upuncorr)
                     tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,dncorr),sqrt_sum(tot_uncorrDn,dnuncorr)
 
-                if sys == "jer":
+                elif sys == "jer":
                     tot_corrUp,tot_uncorrUp = sqrt_sum(tot_corrUp,upuncorr),sqrt_sum(tot_uncorrUp,upuncorr)
                     tot_corrDn,tot_uncorrDn = sqrt_sum(tot_corrDn,dnuncorr),sqrt_sum(tot_uncorrDn,dnuncorr)
 
@@ -323,8 +324,8 @@ for var in vars:
         #multiply by totarea (total unfolded events) since in plotting script the unc hist will be normalized by totarea
         hUncUp.SetBinContent(i,totUncUp*totarea)
         hUncDn.SetBinContent(i,totUncDn*totarea)
-        print("Unc bin content:")
-        print(i,totUncUp*totarea)
+        #print("Unc bin content:")
+        #print(i,totUncUp*totarea)
 
     #Command line root tool doesn't seem to work for some hist, so have to do it "manually" here
     fr2.cd()
@@ -336,14 +337,14 @@ for var in vars:
     olddSigMC= fr2.Get("tot_%s_SigMC"%var)
 
     oldUnf2 = oldUnf.Clone()
-    print("Current area:")
-    print(oldUnf2.Integral())
+    #print("Current area:")
+    #print(oldUnf2.Integral())
     oldUnf2.Scale(1./totarea)
     fr2_statErr = [oldUnf2.GetBinError(a) for a in range(1,oldUnf2.GetNbinsX()+1)]
-    print("In current file stat err:")
-    print(fr2_statErr)
-    print("Tot unc up:")
-    print(FillDic[var][0])
+    #print("In current file stat err:")
+    #print(fr2_statErr)
+    #print("Tot unc up:")
+    #print(FillDic[var][0])
     #pdb.set_trace()
     fout.cd()
     tmpHists = [olddata,oldtrue,oldtrueAlt,oldBkg,oldUnf,olddSigMC,hUncUp,hUncDn]
