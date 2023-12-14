@@ -225,6 +225,8 @@ for var, prettyVar in prettyVars.iteritems():
     _yTitle[var] = yt
     if var == "dEtajj":
         _yTitle[var] = _yTitleTemp.format(xvar="\\vert \\Delta \\eta (j_1,j_2) \\vert",prefix='\\frac{1}{\\sigma_{\\text{fid}}}', units='')
+    if var == "mjj":
+        _yTitle[var] = _yTitleTemp.format(xvar="m_{jj}",prefix='\\frac{1}{\\sigma_{\\text{fid}}}', units='\\, \\left( \\frac{{1}}{{\\text{{{unit}}}}} \\right)'.format(unit='GeV'))
     _yTitleNoNorm[var] = ytnn
 
 # list of variables not counting systematic shifts
@@ -349,13 +351,15 @@ def createRatio(h1, h2):
     return Ratio,line
 
 def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=None,hTrueEWC = None):
-    legend = ROOT.TLegend(coords[0], coords[1], coords[2], coords[3])
+    legend = ROOT.TLegend(coords[0]+0.05, coords[1]+0.01, coords[2]+0.05, coords[3]-0.01)
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
-    #legend.SetFillStyle(0)
+    legend.SetFillStyle(0)
     legend.SetFillColor(ROOT.kWhite)
-    legend.SetBorderSize(2)
-    legend.SetTextSize(0.037) #0.033 #0.025
+    legend.SetBorderSize(0)
+    legend.SetTextSize(0.043) #0.033 #0.025
+    if "Full" in hTrue.GetName():
+        legend.SetTextSize(0.04)    
     legend.SetTextColor(ROOT.kBlack)
     with open('listFile.json') as list_json_file:
         mylist_dict = json.load(list_json_file)
@@ -541,11 +545,11 @@ def getLumiTextBox():
     texS.SetTextSize(0.045)
     texS.SetTextColor(ROOT.kBlack)
     texS.Draw()
-    texS1 = ROOT.TLatex(0.14,0.965,"#bf{CMS}")
+    texS1 = ROOT.TLatex(0.14,0.96,"#bf{CMS}")
     texS1.SetNDC()
     texS1.SetTextFont(42)
     texS1.SetTextColor(ROOT.kBlack)
-    texS1.SetTextSize(0.045)
+    texS1.SetTextSize(0.055)
     texS1.Draw()
 
     texS2 = ROOT.TLatex(0.23,0.965,"Preliminary")
@@ -674,13 +678,23 @@ def MainErrorBand(hMain,hUncUp,hUncDn,varName,norm,normFb):
             drawyTitle = "Events"
         MainGraph.GetYaxis().SetTitle(drawyTitle)
         #MainGraph.GetYaxis().CenterTitle()
-        MainGraph.GetYaxis().SetTitleSize(ytilt_fac*hMain.GetYaxis().GetTitleSize())
+        if "Allj" in hUncUp.GetName():
+            tmpfac = 1.2
+            tmpfac2 = 0.8
+        elif "Full" in hUncUp.GetName():
+            tmpfac = 1
+            tmpfac2 = 0.9
+        else:
+            tmpfac = 1.2
+            tmpfac2 = 0.8
+
+        MainGraph.GetYaxis().SetTitleSize(tmpfac*ytilt_fac*hMain.GetYaxis().GetTitleSize())
         MainGraph.GetYaxis().SetLabelSize(1.1*hMain.GetYaxis().GetLabelSize()) #1.3
         if varName=="drz1z2":
             MainGraph.GetYaxis().SetTitleOffset(1.0)
         else:
             MainGraph.GetYaxis().SetLabelOffset(0.0)
-            MainGraph.GetYaxis().SetTitleOffset(hMain.GetYaxis().GetTitleOffset()*args['titleOffset'])
+            MainGraph.GetYaxis().SetTitleOffset(hMain.GetYaxis().GetTitleOffset()*args['titleOffset']*tmpfac2)
         #MainGraph.GetXaxis().SetLabelSize(0)
         #MainGraph.GetXaxis().SetTitleSize(0)
         #MainGraph.GetYaxis().SetLabelSize(0)
@@ -1090,10 +1104,17 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
         Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
         Altyaxis.SetNdivisions(yrdiv)
-        dataTheoSize = 0.2
+        dataTheoSize = 0.223
+        tmpy = -0.01
         if varName == "MassAllj":
-            dataTheoSize = 0.22
-        axText2=getAxisTextBox(0.06,0.0,"Data/Theo.",dataTheoSize,True)
+            dataTheoSize *= 1.
+        elif "Full" in varName:
+            dataTheoSize *= 0.9
+            tmpy = 0.0
+        else:
+            dataTheoSize *= 0.97
+            tmpy = 0.0
+        axText2=getAxisTextBox(0.06,tmpy,"Data/Theo.",dataTheoSize,True)
         MCTextNom=getAxisTextBox(top_xy[0],top_xy[1],ratioName_nom,top_fontsize,False)
         
 
@@ -1280,7 +1301,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
             xaxis.ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3")
         else:
             xaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmax(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),hUnf.GetXaxis().GetXmax(),510)
-        xaxis.SetTitle(prettyVars[varName]+''+units[varName])
+        xaxis.SetTitle(prettyVars[varName]+' '+units[varName])
         #labelTex = getSigTextBox(0.9,0.8,prettyVars[varName]+''+units[varName])
         #if varName=="mass":
             #xaxis.ChangeLabel(1,-1,0.1)
