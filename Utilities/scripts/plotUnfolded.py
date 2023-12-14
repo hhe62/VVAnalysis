@@ -351,15 +351,20 @@ def createRatio(h1, h2):
     return Ratio,line
 
 def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=None,hTrueEWC = None):
-    legend = ROOT.TLegend(coords[0]+0.05, coords[1]+0.01, coords[2]+0.05, coords[3]-0.01)
+    tmpshift = 0.05
+    if "MassAllj" in hTrue.GetName():
+        tmpshift = 0.03
+    elif "Mass" in hTrue.GetName():
+        tmpshift = 0.04
+    legend = ROOT.TLegend(coords[0]+tmpshift, coords[1]+0.01, coords[2]+tmpshift, coords[3]-0.01)
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
     legend.SetFillStyle(0)
     legend.SetFillColor(ROOT.kWhite)
     legend.SetBorderSize(0)
-    legend.SetTextSize(0.043) #0.033 #0.025
+    legend.SetTextSize(0.047) #0.033 #0.025
     if "Full" in hTrue.GetName():
-        legend.SetTextSize(0.04)    
+        legend.SetTextSize(0.042)    
     legend.SetTextColor(ROOT.kBlack)
     with open('listFile.json') as list_json_file:
         mylist_dict = json.load(list_json_file)
