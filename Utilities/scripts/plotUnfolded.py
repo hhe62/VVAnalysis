@@ -356,7 +356,7 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=Non
         tmpshift = 0.03
     elif "Mass" in hTrue.GetName():
         tmpshift = 0.04
-    legend = ROOT.TLegend(coords[0]+tmpshift, coords[1]+0.01, coords[2]+tmpshift, coords[3]-0.1)
+    legend = ROOT.TLegend(coords[0]+tmpshift, coords[1]+0.0, coords[2]+tmpshift, coords[3]-0.02)
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
     legend.SetFillStyle(0)
