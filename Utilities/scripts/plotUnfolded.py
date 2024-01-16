@@ -554,7 +554,7 @@ def getLumiTextBox():
     texS1.SetNDC()
     texS1.SetTextFont(42)
     texS1.SetTextColor(ROOT.kBlack)
-    texS1.SetTextSize(0.055)
+    texS1.SetTextSize(0.1)
     texS1.Draw()
 
     texS2 = ROOT.TLatex(0.23,0.965,"Preliminary")
@@ -1103,8 +1103,8 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         
         sigTex = getSigTextBox(0.15,0.8,sigLabel,0.14) #used?
         Ratio.Draw(crossDrawOpt)
-        #line.SetLineColor(ROOT.kBlack)
-        line.SetLineColor(ROOT.TColor.GetColor('#377eb8'))
+        line.SetLineColor(ROOT.kBlack)
+        #line.SetLineColor(ROOT.TColor.GetColor('#377eb8'))
         line.Draw("same")
 
         Altyaxis = ROOT.TGaxis(hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMinimum(),hUnf.GetXaxis().GetXmin(),ratioErrorBand.GetMaximum(),ratioErrorBand.GetMinimum(),ratioErrorBand.GetMaximum(),3,"CS")
@@ -1119,7 +1119,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         else:
             dataTheoSize *= 0.97
             tmpy = 0.0
-        axText2=getAxisTextBox(0.06,tmpy,"Data/Theo.",dataTheoSize,True)
+        axText2=getAxisTextBox(0.06,tmpy,"Data/Pred.",dataTheoSize,True)
         MCTextNom=getAxisTextBox(top_xy[0],top_xy[1],ratioName_nom,top_fontsize,False)
         
 
@@ -1167,7 +1167,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         
         AltRatio.Draw(crossDrawOpt)
         #ratioErrorBand.Draw("p")
-        Altline.SetLineColor(ROOT.kRed)
+        Altline.SetLineColor(ROOT.kBlack)
         Altline.Draw("same")
         
         if include_MiNNLO:
@@ -1233,7 +1233,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 EWCRatio.Draw(crossDrawOpt)
 
             #ratioErrorBand.Draw("p")
-            NNLOline.SetLineColor(ROOT.kViolet)
+            NNLOline.SetLineColor(ROOT.kBlack)
             NNLOline.Draw("same")
             
             ratioName_NNLO = "nNNLO+PS"
@@ -1268,7 +1268,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
 
                 EWCRatioErrorBand.Draw("a2")
                 EWCRatio.Draw(crossDrawOpt)
-                EWCline.SetLineColor(ROOT.kOrange)
+                EWCline.SetLineColor(ROOT.kBlack)
                 EWCline.Draw("same")
 
                 ratioName_EWC = "(nNNLO+PS)#times K_{EW}"
