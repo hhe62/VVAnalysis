@@ -85,7 +85,7 @@ var3="mjj"
 dict[var3] = {}
 dict[var3]["units"] = '[GeV]'
 dict[var3]["_binning"] = [0.,200.,400.,600.,1000.]#[100.+40.*i for i in range(31)]
-dict[var3]["prettyVars"] = 'Dijet Mass'
+dict[var3]["prettyVars"] = 'Dijet mass'
 dict[var3]["responseClassNames"] = 'testJet'
 
 var4="dEtajj"
