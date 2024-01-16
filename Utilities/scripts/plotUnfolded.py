@@ -356,7 +356,7 @@ def getPrettyLegend(hTrue, data_hist, hAltTrue, error_hist, coords,hTrueNNLO=Non
         tmpshift = 0.03
     elif "Mass" in hTrue.GetName():
         tmpshift = 0.04
-    legend = ROOT.TLegend(coords[0]+tmpshift, coords[1]+0.01, coords[2]+tmpshift, coords[3]-0.01)
+    legend = ROOT.TLegend(coords[0]+tmpshift, coords[1]+0.01, coords[2]+tmpshift, coords[3]-0.1)
     ROOT.SetOwnership(legend, False)
     legend.SetName("legend")
     legend.SetFillStyle(0)
@@ -404,6 +404,7 @@ def createCanvasPads(varName):
     pad1.SetFrameBorderMode(0)
     pad1.SetBorderMode(0)
     pad1.SetBottomMargin(0)  # joins upper and lower plot
+    pad1.SetTopMargin(0.06)
     #pad1.SetGridx()
     #pad1.Draw()
     return c,pad1
@@ -544,17 +545,17 @@ def getRYaxis(hUnf1,ratioErrorBand1,lastP):
     return Ryaxis
     
 def getLumiTextBox():
-    texS = ROOT.TLatex(0.68,0.965, str(int(round(args['lumi'])))+" fb^{-1} (13 TeV)")
+    texS = ROOT.TLatex(0.68,0.945, str(int(round(args['lumi'])))+" fb^{-1} (13 TeV)")
     texS.SetNDC()
     texS.SetTextFont(42)
-    texS.SetTextSize(0.045)
+    texS.SetTextSize(0.04)
     texS.SetTextColor(ROOT.kBlack)
     texS.Draw()
-    texS1 = ROOT.TLatex(0.14,0.96,"#bf{CMS}")
+    texS1 = ROOT.TLatex(0.14,0.945,"#bf{CMS}")
     texS1.SetNDC()
     texS1.SetTextFont(42)
     texS1.SetTextColor(ROOT.kBlack)
-    texS1.SetTextSize(0.1)
+    texS1.SetTextSize(0.08)
     texS1.Draw()
 
     texS2 = ROOT.TLatex(0.23,0.965,"Preliminary")
@@ -778,7 +779,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
     if unfoldDir:
         #Create a ratio plot
         c,pad1 = createCanvasPads(varName)
-        c.SetCanvasSize(1000, 1300);
+        c.SetCanvasSize(1000, 1300)
         Unfmaximum = hUnf.GetMaximum()
         #hTrue.SetFillColor(ROOT.TColor.GetColor("#99ccff"))
         #hTrue.SetLineColor(ROOT.TColor.GetColor('#000099')) 
@@ -1033,7 +1034,7 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
                 legend = getPrettyLegend(hTrue, hUnf, hTrueAlt, UnfErrBand, coords,hTrueNNLO,hTrueEWC)
                 
         legend.Draw()
-        texS,texS1,texS2=getLumiTextBox()
+        #texS,texS1,texS2=getLumiTextBox()
         sigLabel = "POWHEG+MCFM+Pythia8" #used?
         sigLabelAlt = "MG5_aMC@NLO+MCFM+Pythia8"
 
@@ -1075,6 +1076,10 @@ def generatePlots(hUnfolded,hUncUp,hUncDn,hTruth,hTruthAlt,varName,norm,normFb,l
         #leg.SetFillStyle(1001)
         #leg.SetTextSize(0.025)
         #leg.Draw()
+
+     
+        texS,texS1,texS2=getLumiTextBox()
+     
 
         #SecondPad
         #nominal sample
