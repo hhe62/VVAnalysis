@@ -1193,6 +1193,11 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   float l3pt_tmp = l3Pt;
   float l4pt_tmp = l4Pt;
 
+  float l1eta_tmp = l1Eta;
+  float l2eta_tmp = l2Eta;
+  float l3eta_tmp = l3Eta;
+  float l4eta_tmp = l4Eta;
+
   float jpt0_tmp;
   float jeta0_tmp;
   
@@ -1618,6 +1623,11 @@ if (writeNtp_ && writeNtpFullRange){
     SafeSetBranch(ftntp_, getBranchName("l2pt", variation.second), &l2pt_tmp);
     SafeSetBranch(ftntp_, getBranchName("l3pt", variation.second), &l3pt_tmp);
     SafeSetBranch(ftntp_, getBranchName("l4pt", variation.second), &l4pt_tmp);   
+
+    SafeSetBranch(ftntp_, getBranchName("l1eta", variation.second), &l1eta_tmp); 
+    SafeSetBranch(ftntp_, getBranchName("l2eta", variation.second), &l2eta_tmp);
+    SafeSetBranch(ftntp_, getBranchName("l3eta", variation.second), &l3eta_tmp);
+    SafeSetBranch(ftntp_, getBranchName("l4eta", variation.second), &l4eta_tmp);   
 
     SafeSetBranch(ftntp_, getBranchName("jetPt1", variation.second), &jpt1_tmp); 
     SafeSetBranch(ftntp_, getBranchName("jetEta1", variation.second), &jeta1_tmp); 
