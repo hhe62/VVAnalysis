@@ -14,7 +14,7 @@ void ZZSelector::Init(TTree *tree)
       {pileupUp, "CMS_pileupUp"},
       {pileupDown, "CMS_pileupDown"},
   };
-  doSystematics_ = false; // true; // false;//true;
+  doSystematics_ = true; // false;//true;
 
   // This would be set true inside ZZBackground Selector
   // isNonPrompt_ = false;
@@ -1186,7 +1186,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     return;
   }
 
-//Fill variables for full mass range
+//Fill variables for full mass range and on-shell ZZ ntuple
+
+ 
   int nJets_tmp = jetPt->size();
   float l1pt_tmp = l1Pt;
   float l2pt_tmp = l2Pt;
@@ -1608,8 +1610,18 @@ if (writeNtp_ && writeNtpFullRange){
   //=====================A place where the on-shell selections have been applied and we fill the ntuple====================================================
  
 
+  float tempNA = -9999.;
+
   if (writeNtp_ && !writeNtpFullRange){
+
+    //*Set weight branch of central and all systs to a N/A variable, then only fill nonzero weight for the current syst branch*
+     for (const auto &syst_temp : variations_){
+      SafeSetBranch(ftntp_, getBranchName("weight", syst_temp.second), &tempNA);
+    }
+    
     SafeSetBranch(ftntp_, getBranchName("weight", variation.second), &weight);
+
+    //getBranchName function only changes the branch name for weight
     SafeSetBranch(ftntp_, getBranchName("Mass", variation.second), &Mass); 
     SafeSetBranch(ftntp_, getBranchName("nJets", variation.second), &nJets_tmp); 
     SafeSetBranch(ftntp_, getBranchName("jetPt0", variation.second), &jpt0_tmp); 
@@ -1643,6 +1655,8 @@ if (writeNtp_ && writeNtpFullRange){
     SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightDn", variation.second), &L1prefiringWeightDn);
 
     }
+
+    
     ftntp_->Fill();
   }
   

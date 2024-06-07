@@ -450,7 +450,10 @@ std::string SelectorBase::getBranchName(std::string bName, std::string variation
     if (channel != ""){
         channel = "_" + channel;  
     }
-    if (variationName != "")
+
+    //*Don't add variation name to branch name except for weight, but use weight branches to distinguish syst from central *
+    if (variationName != "" && bName == "weight")
         return bName + "_" + variationName + channel;
+
     return bName + channel;
 }
