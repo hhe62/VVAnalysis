@@ -16,6 +16,7 @@ for key in myvar_dict.keys(): #key is the variable
 _binning["Mass"] = _binning["MassAllj"]
 #_binning["ept"] = [7.0,10.0,15.0,20.0,30.0,50.0,100.0,200.0]
 _binning["ept"] = [7.0,20.0,50.0,100.0,150.0,200.0]
+_binning["eeta"] = [0.,0.5,1.0,1.5,2.0,2.5]
 
 def rebin(hist,varName):
     ROOT.SetOwnership(hist, False)
@@ -75,7 +76,7 @@ initBins = "400,0,200"
 initBins2 = "50,0,5"
 njmax = 3
 variations = ["nominal", "RECO_up","RECO_dn","ID_up","ID_dn"]
-histslist = []
+
 #=========================================
 
 for chan in channels:
@@ -86,6 +87,8 @@ for chan in channels:
         continue
 
     for nj in range(0,njmax+1):
+        histslist = []
+
         nj_print = nj
         if nj==njmax:
             nj_print = "%sorMore"%njmax
@@ -101,9 +104,9 @@ for chan in channels:
             exec("hEta%s = ROOT.TH1D(histname,histname,%s)"%(var_ind,initBins2) )
             exec("histslist.append(hEta%s)"%var_ind) 
 
-        #Only 1 histogram but keep the loop from previous codes
+        #0-4 for pt, 5-9 for eta
         for i,h in enumerate(histslist):
-           
+            #pdb.set_trace()
             datasets = pre_datasets
             fin = fUL
             fh = fhUL
@@ -113,7 +116,24 @@ for chan in channels:
             lumi = lumitot
             tag = ""
             
+            if i<5:
+                var_text = "pt"
+            else:
+                var_text = "eta"
+            
+            wt_tag = ""
+            weightExpr = "weight"
 
+            if i % 5 ==1:
+                wt_tag = "_CMS_RecoEff_eUp"  
+            if i % 5 ==2:
+                wt_tag = "_CMS_RecoEff_eDown" 
+            if i % 5 ==3:
+                wt_tag = "_CMS_eff_eUp" 
+            if i % 5 ==4:
+                wt_tag = "_CMS_eff_eDown"   
+            
+            weightExpr += wt_tag
 
                 
 
@@ -125,15 +145,17 @@ for chan in channels:
                 sumweights = h_sumw.Integral(0,h_sumw.GetNbinsX()+1)
                 if not tree:
                     print("something wrong getting tree %s"%treename)
-                #pdb.set_trace()
+                #Fill in abs values, for pt doesn't matter, mainly affects eta
                 for evt in tree:
                     if evt.nJets == nj or (nj==njmax and evt.nJets > nj):
-                        exec("h.Fill(evt.l1pt,evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(weightExpr,additional))
-                        exec("h.Fill(evt.l2pt,evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(weightExpr,additional))
-                        exec("h.Fill(evt.l3pt,evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(weightExpr,additional))
-                        exec("h.Fill(evt.l4pt,evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(weightExpr,additional))
+                        exec("weight_tmp = evt.%s"%weightExpr)
+                        if weight_tmp != -9999.:
+                            exec("h.Fill(abs(evt.l1%s),evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(var_text,weightExpr,additional))
+                            exec("h.Fill(abs(evt.l2%s),evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(var_text,weightExpr,additional))
+                            exec("h.Fill(abs(evt.l3%s),evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(var_text,weightExpr,additional))
+                            exec("h.Fill(abs(evt.l4%s),evt.%s*xsecs[j]*lumi*1000/sumweights%s)"%(var_text,weightExpr,additional))
       
-            h = rebin(h,"ept")
+            h = rebin(h,"e%s"%var_text)
             hdict[chan].append(h)
             #print(h.GetName())
             

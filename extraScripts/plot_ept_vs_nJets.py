@@ -73,30 +73,32 @@ def titleAndRatio(t):
 
     return tex #,rtex
 
-def plotHist(h1,h2,h3,h4,k1,k2,k3,k4,doNorm):
+def plotHist(hists,labels,doNorm):
     if not doNorm:
-        h1.GetYaxis().SetTitle("Entries")
+        hists[0].GetYaxis().SetTitle("Entries")
     else:
-        h1.GetYaxis().SetTitle("Entries/Tot Entries")
-    h1.GetYaxis().SetTitleOffset(1.1)
+        hists[0].GetYaxis().SetTitle("Entries/Tot Entries")
+    hists[0].GetYaxis().SetTitleOffset(1.1)
 
     if doNorm:
-        for htmp in [h1,h2,h3,h4]:
+        for htmp in hists:
             htmp.Scale(1./htmp.Integral(1,htmp.GetNbinsX()+1))
             htmp.SetMinimum(0.)
-    h1.Draw("HIST")
-    h2.Draw("HIST SAME")
-    h3.Draw("HIST SAME")
-    h4.Draw("HIST SAME")
-    legend = r.TLegend (0.6 ,0.75 ,0.9 ,0.85)
+    
+    for hind,htmp in enumerate(hists):
+        if hind<1:
+            htmp.Draw("HIST")
+        else:
+            htmp.Draw("HIST SAME")
+        
+    legend = r.TLegend (0.6 ,0.7 ,0.9 ,0.85)
     #legend = r.TLegend (0.5 ,0.9 ,0.9 ,1.2)
     legend.SetBorderSize(1)
     legend.SetFillColor(r.kWhite)
     #legend.SetBorderSize(2)
-    legend.AddEntry(h1,k1,"l")
-    legend.AddEntry(h2,k2,"l")
-    legend.AddEntry(h3,k3,"l")
-    legend.AddEntry(h4,k4,"l")
+    for hind,htmp in enumerate(hists):
+        legend.AddEntry(htmp,labels[hind],"l")
+    
     legend.SetTextSize(0.03)
     #legend.SetLineWidth (0)
     legend.Draw("same")
@@ -116,8 +118,13 @@ def extraTex(x,y,tex):
 #varstr="nJets Mass mjj" #dEtajj jetPt[0] jetPt[1] absjetEta[0] absjetEta[1] MassAllj Mass0j Mass1j Mass2j Mass34j MassFull Mass0jFull Mass1jFull Mass2jFull Mass34jFull"
 #varstr="nJets Mass mjj dEtajj jetPt[0] jetPt[1] absjetEta[0] absjetEta[1] Mass0j Mass1j Mass2j Mass3j Mass4j"
 #vars = varstr.split(" ")
-var = "ept"
-outdir = "2018ept_vs_nJets_Plots"
+
+#*Use pt or eta*
+#var = "ept"
+#var_print = "Pt"
+var = "eeta"
+var_print = "Eta"
+outdir = "2018ePtEta_vs_nJets_Plots"
 pdfcommand=['convert']
 pdfcommand2=['convert']
 
@@ -137,8 +144,10 @@ units["Mass"] = units["MassAllj"]
 prettyVars["Mass"] = prettyVars["MassAllj"]
 units["ept"] = units["MassAllj"]
 prettyVars["ept"] = "Electron p_{T}"
+units["eeta"] = ""
+prettyVars["eeta"] = "Electron |#eta|"
 
-fin = r.TFile("ept_vs_nJets_HistOutput.root")
+fin = r.TFile("ePtEta_vs_nJets_HistOutput.root")
 channels = ["eeee"]
 
 r.gStyle.SetOptDate(False)
@@ -149,9 +158,14 @@ c1.SetTopMargin(0.05)
 c1.cd()
 
 lineStyles = [1,2,3,4]
+lineStyles_var = [1,2,3,4,5]
+colors_var = [r.kOrange,r.kBlue,r.kGreen,r.kRed,r.kBlack]
 colors = [r.kOrange,r.kBlue,r.kRed,r.kBlack]
 njmax = 3
 hists = []
+varhists = {}
+variations = ["nominal", "RECO_up","RECO_dn","ID_up","ID_dn"]
+
 for chan in channels:
     
     chanp = chan
@@ -159,13 +173,30 @@ for chan in channels:
         chanp = "Total"
         
     for nj in range(0,njmax+1):
-        nj_print = nj
+        nj_print = str(nj)
         if nj==njmax:
             nj_print = "%sorMore"%njmax
-        histname = "ept_with_%s_jets_"%nj_print+chan+"NoConfusion"
+        varhists[nj_print] = []
+        for variation in variations:
+            histname = "e%s_with_%s_jets_"%(var_print,nj_print)+chan+"_%s"%variation+"NoConfusion"
 
-        h_tmp = fin.Get(histname).Clone(histname+"_Copy")
-        hists.append(h_tmp)
+            h_tmp = fin.Get(histname).Clone(histname+"_Copy")
+            if variation == "nominal":
+                hists.append(h_tmp)
+            varhists[nj_print].append(h_tmp)
+        
+        max_var = max([h_tmp.GetMaximum() for h_tmp in varhists[nj_print]])
+        min_var = min([h_tmp.GetMinimum() for h_tmp in varhists[nj_print]]+[0.])
+        maxfac_var = 1.2
+        for i,h in enumerate(varhists[nj_print]):
+            h.SetMaximum(maxfac_var*max_var)
+            h.SetMinimum(min_var)
+            
+            h.SetLineStyle(lineStyles_var[i])
+            h.SetLineColor(colors_var[i])
+            h.GetXaxis().SetLabelSize(0)
+            h.GetXaxis().SetTickLength(0)
+            h.SetLineWidth(4*h.GetLineWidth())
     
     max1 = max([h_tmp.GetMaximum() for h_tmp in hists])
     
@@ -173,15 +204,15 @@ for chan in channels:
     
     maxfac = 1.2
    
-    for i,h in enumerate(hists):
-        h.SetMaximum(maxfac*max1)
-        h.SetMinimum(min1)
-        
-        h.SetLineStyle(lineStyles[i])
-        h.SetLineColor(colors[i])
-        h.GetXaxis().SetLabelSize(0)
-        h.GetXaxis().SetTickLength(0)
-        h.SetLineWidth(4*h.GetLineWidth())
+    #for i,h in enumerate(hists):
+    #    h.SetMaximum(maxfac*max1)
+    #    h.SetMinimum(min1)
+    #    
+    #    h.SetLineStyle(lineStyles[i])
+    #    h.SetLineColor(colors[i])
+    #    h.GetXaxis().SetLabelSize(0)
+    #    h.GetXaxis().SetTickLength(0)
+    #    h.SetLineWidth(4*h.GetLineWidth())
 
             
     #c1.Divide(2,1)
@@ -192,37 +223,58 @@ for chan in channels:
     else:
         r.gPad.SetLogx(0)  
 
-    legend1 = plotHist(hists[0],hists[1],hists[2],hists[3],"0 jet","1 jet","2 jets", "#geq3 jets",False)
-    t1,t2,t3 = getLumiTextBox()
-    tex1= titleAndRatio("MC RECO Events %s"%chanp)
-    xa1 = redrawXaxis(hists[0],var)
+    #*For original nominal plots*
+    #legend1 = plotHist(hists[0],hists[1],hists[2],hists[3],"0 jet","1 jet","2 jets", "#geq3 jets",True)
+    for nj in range(0,njmax+1):
+        nj_print = str(nj)
+        if nj==njmax:
+            nj_print = "%sorMore"%njmax
 
-    if "Full" in var:
-        texf = extraTex(0.65,0.68,"Full mass range")
-        #texEty = extraTex(0.65,0.6,str(hR.GetEntries()))
-    elif "Mass" in var:
-        texf = extraTex(0.65,0.68,"On-shell ZZ")
-        if "j" in var:
-            tmp_nj = int(var.replace("Mass","").replace("j",""))
-            geq = ""
-            if tmp_nj ==4:
-                geq = "#geq"
-            texf2 = extraTex(0.65,0.5,"Events with %s%s jet(s)"%(geq,tmp_nj))
-    if "[0]" in var:
-        texf = extraTex(0.65,0.68,"Events with #geq 1 jet")    
-    if "[1]" in var:
-        texf = extraTex(0.65,0.68,"Events with #geq 2 jets")   
+        legend1 = plotHist(varhists[nj_print],variations,True)
+        
+        t1,t2,t3 = getLumiTextBox()
+        tex1= titleAndRatio("MC RECO Events %s"%chanp)
+        xa1 = redrawXaxis(hists[0],var)
+        if "pt" in var:
+            textHt = 0.6
+            textHor = 0.6
+        else:
+            textHt = 0.4
+            textHor = 0.2
 
-    
-    c1.SaveAs(os.path.join(outdir,"%s_%s.png"%(var,chan)))
+        if nj<3:
+            texf = extraTex(textHor,textHt,str(nj)+"-jet Event")
+        else:
+            texf = extraTex(textHor,textHt, "Event with 3 or more jets")
+        
 
-    if chan == "total":
-        pdfcommand.append(os.path.join(outdir,"%s_%s.png"%(var,chan)))
-    #else:
-    #    pdfcommand2.append(os.path.join(outdir,"%s_%s.png"%(var,chan)))
+        #*In this script the cases below do not apply*#
+        if "Full" in var:
+            texf = extraTex(0.65,0.68,"Full mass range")
+            #texEty = extraTex(0.65,0.6,str(hR.GetEntries()))
+        elif "Mass" in var:
+            texf = extraTex(0.65,0.68,"On-shell ZZ")
+            if "j" in var:
+                tmp_nj = int(var.replace("Mass","").replace("j",""))
+                geq = ""
+                if tmp_nj ==4:
+                    geq = "#geq"
+                texf2 = extraTex(0.65,0.5,"Events with %s%s jet(s)"%(geq,tmp_nj))
+        if "[0]" in var:
+            texf = extraTex(0.65,0.68,"Events with #geq 1 jet")    
+        if "[1]" in var:
+            texf = extraTex(0.65,0.68,"Events with #geq 2 jets")   
 
-    c1.Clear()
+        outpath = os.path.join(outdir,"%s_%s_%s.png"%(var,chan,nj_print))
+        c1.SaveAs(outpath)
 
-pdfcommand.append(os.path.join("./","ept_vs_nJets_plots.pdf"))  
-#subprocess.call(pdfcommand)
+        if chan == "total":
+            pdfcommand.append(outpath)
+        else:
+            pdfcommand2.append(outpath)
+
+        c1.Clear()
+
+pdfcommand2.append(os.path.join("./","e%s_vs_nJets_plots.pdf"%var_print))  
+subprocess.call(pdfcommand2)
 
