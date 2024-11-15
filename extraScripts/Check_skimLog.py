@@ -1,7 +1,7 @@
 import os
 import sys
 
-#Usage: python Check_skimLogAndRedo.py folder 
+#Usage: python Check_skimLog.py folder 
 
 common_err = "WARNING: In non-interactive mode release checks e.g. deprecated releases, production architectures are disabled."
 #dir must be the root /nfs_scratch/<user>/<farmout_job_folder> for correct identification of folders
