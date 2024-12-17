@@ -2,6 +2,18 @@
 #include "TLorentzVector.h"
 #include <boost/algorithm/string.hpp>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Important global variables:
+// doSystematics_ :turn on syst calc., much more time consuming                                                                         
+// applyPUSFNtp_  :apply PU SF from ntuple calculated in UWVV; default to true
+// writeNtp_      :also write selected events in ntuple files
+//
+// Local variables:
+// writeNtpFullRange : if true, only write ntuple for full mass range; false -- only for on-shell region  
+// tempNA  : used to set weight to N/A value. Set to float -99999.
+// tempNAv : used to set variable values to N/A. Set to float -99999.                                                                     
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void ZZSelector::Init(TTree *tree)
 {
   systematics_ = {
@@ -945,6 +957,15 @@ bool ZZSelector::PassesZZjjSelection()
     return true;
 }
 
+bool ZZSelector::PassesZZjjBaselineSelection() //Define a separate selection in updated codes
+{
+  if ((jetPt->size() != jetEta->size() || jetPt->size() < 2) || (mjj < 100) || (Mass <= 180.0))
+    return false;
+  else
+    return true;
+}
+
+
 bool ZZSelector::Passes4eExtraCut()
 {
 
@@ -1188,7 +1209,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
 
 //Fill variables for full mass range and on-shell ZZ ntuple
 
- 
+  float tempNAv = -99999.;
   int nJets_tmp = jetPt->size();
   float l1pt_tmp = l1Pt;
   float l2pt_tmp = l2Pt;
@@ -1207,20 +1228,23 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     jpt0_tmp = jetPt->at(0);
     jeta0_tmp = jetEta->at(0);}
     else{
-      jpt0_tmp = -9999.;
-      jeta0_tmp = -9999.;
+      jpt0_tmp = tempNAv;
+      jeta0_tmp = tempNAv;
     }
 
   float jpt1_tmp;
   float jeta1_tmp;
 
   //mjj and dEtajj has default values already (but dEtajj=-1 is small although unphysical... unlike -9999), but need to assign values for temporary jetPt[1] and jetEta[1] 
+  // => mjj and dEtajj NaN values are set here as well for consistency
   if (nJets_tmp >=2){
     jpt1_tmp = jetPt->at(1);
     jeta1_tmp = jetEta->at(1);}
   else{
-      jpt1_tmp = -9999.;
-      jeta1_tmp = -9999.;
+      jpt1_tmp = tempNAv;
+      jeta1_tmp = tempNAv;
+      dEtajj = tempNAv;
+      mjj = tempNAv;
     }
 
 bool writeNtpFullRange = false;
@@ -1610,7 +1634,7 @@ if (writeNtp_ && writeNtpFullRange){
   //=====================A place where the on-shell selections have been applied and we fill the ntuple====================================================
  
 
-  float tempNA = -9999.;
+  float tempNA = -99999.;
 
   if (writeNtp_ && !writeNtpFullRange){
 
