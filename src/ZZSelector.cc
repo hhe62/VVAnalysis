@@ -82,7 +82,7 @@ void ZZSelector::SetBranchesUWVV()
     if (applyPUSF_ || applyPUSFNtp_)
     {
       try
-      { // catching doesn't seem to work. Crash directly in either here or getentry()
+      { //! catching doesn't seem to work. Crash directly in either here or getentry()
         fChain->SetBranchAddress("isGenJetMatched", &isGenJetMatched, &b_isGenJetMatched);
         fChain->SetBranchAddress("jetPUSFmulfac", &jetPUSFmulfac, &b_jetPUSFmulfac);
       }
@@ -196,7 +196,7 @@ void ZZSelector::LoadBranchesUWVV(Long64_t entry, std::pair<Systematic, std::str
     if (applyPUSF_ || applyPUSFNtp_)
     {
       try
-      { // catching doesn't seem to work. Crash directly somewhere for sample without isGenJetMatched.
+      { //! catching doesn't seem to work. Crash directly somewhere for sample without isGenJetMatched.
         b_isGenJetMatched->GetEntry(entry);
         b_jetPUSFmulfac->GetEntry(entry);
       }
@@ -1207,7 +1207,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     return;
   }
 
-  // Fill variables for full mass range and on-shell ZZ ntuple
+  //! Fill variables for full mass range and on-shell ZZ ntuple filling to avoid accidental modification etc.
 
   float tempNAv = -99999.;
   int nJets_tmp = jetPt->size();
@@ -1220,6 +1220,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   float l2eta_tmp = l2Eta;
   float l3eta_tmp = l3Eta;
   float l4eta_tmp = l4Eta;
+  float etaproduct_tmp = Z1Eta*Z2Eta;
 
   float jpt0_tmp;
   float jeta0_tmp;
@@ -1238,8 +1239,17 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   float jpt1_tmp;
   float jeta1_tmp;
 
-  // mjj and dEtajj has default values already (but dEtajj=-1 is small although unphysical... unlike -9999), but need to assign values for temporary jetPt[1] and jetEta[1]
-  //  => mjj and dEtajj NaN values are set here as well for consistency
+  //! One value for each shift (JES up, JER dn etc.)
+  std::vector<float> jetPt0_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> jetEta0_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> jetPt1_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> jetEta1_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> mjj_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> dEtajj_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  
+
+  //! mjj and dEtajj has default values already (but dEtajj=-1 is small although unphysical... unlike -9999), but need to assign values for temporary jetPt[1] and jetEta[1]
+  //! => mjj and dEtajj NaN values are set here as well for consistency; dPhiZZ is always defined with the two Z's present.
   if (nJets_tmp >= 2)
   {
     jpt1_tmp = jetPt->at(1);
@@ -1295,14 +1305,15 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   std::vector<std::vector<float> *> vjetPt = {jetPt_jesUp, jetPt_jesDown, jetPt_jerUp, jetPt_jerDown};
   std::vector<unsigned int> vnJets = {nJets_jesUp, nJets_jesDown, nJets_jerUp, nJets_jerDown};
   std::vector<float> vmjj = {mjj_jesUp, mjj_jesDown, mjj_jerUp, mjj_jerDown};
+  std::vector<std::string> jetSystNames = {"jesUp", "jesDown", "jerUp", "jerDown"};
 
   if ((variation.first == Central || (doaTGC_ && isaTGC_)) && isMC_)
   {
-    // Do jet systematics JES and JER
-    if (isMC_)
+    //! Do jet systematics JES and JER for full m4l range
+    if (isMC_) //!duplicated condition
     {
       for (size_t i = 0; i < vjetEta.size(); i++)
-      { // No actual syst for full m4l but just for consistency
+      { //! No actual syst for full m4l but just for consistency
         SafeHistFill(jethistMap1D_, getHistName("MassFull", variation.second), Mass, i, weight);
 
         if (vnJets[i] == 0)
@@ -1337,6 +1348,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
       }
     }
 
+    //! LHE reweighting, related to syst. unc. with PDF and QCD scales
     for (size_t i = 0; i < lheWeights.size(); i++) // expect 0 to 111 currently
     {
       SafeHistFill(weighthistMap1D_, getHistName("MassFull", variation.second), Mass, i, lheWeights[i] / lheWeights[0] * weight);
@@ -1373,6 +1385,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     }
   }
 
+  //! Nominal full mass range histograms being filled
   SafeHistFill(histMap1D_, getHistName("MassFull", variation.second), Mass, weight);
   if (jetPt->size() == 0 && jetPt->size() == jetEta->size())
   {
@@ -1481,10 +1494,26 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   // Applying the ZZ Selection here
   // std::cout<<"Is fillHistograms working?"<<std::endl;
   // std::cout<<"isNonPrompt_ in FillHistograms:"<<isNonPrompt_<<std::endl;
+  
   if (!PassesZZSelection(isNonPrompt_))
   {
     return;
   }
+
+  //===========================================================================================
+  //
+  //                       _          _ _                  _             
+  //   ___  _ __        ___| |__   ___| | |  _ __ ___  __ _(_) ___  _ __  
+  //  / _ \| '_ \ _____/ __| '_ \ / _ \ | | | '__/ _ \/ _` | |/ _ \| '_ \ 
+  // | (_) | | | |_____\__ \ | | |  __/ | | | | |  __/ (_| | | (_) | | | |
+  //  \___/|_| |_|     |___/_| |_|\___|_|_| |_|  \___|\__, |_|\___/|_| |_|
+  //                                                  |___/               
+  //
+  // On-shell ZZ regions starts here after the "PassesZZSelection" requirement above
+  //
+  //
+  //
+  //===========================================================================================
 
   for (unsigned int ind = 0; ind < jetPt->size(); ind++)
   {
@@ -1501,8 +1530,8 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   // std::cout<<"eventWeight in ZZSelector: "<<weight<<std::endl;
   if ((variation.first == Central || (doaTGC_ && isaTGC_)) && isMC_)
   {
-    // Do jet systematics JES and JER
-    if (isMC_)
+    //! Do jet systematics JES and JER in on-shell region
+    if (isMC_) //!duplicated condition
     {
 
       for (size_t i = 0; i < vjetEta.size(); i++)
@@ -1527,7 +1556,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
           SafeHistFill(jethistMap1D_, getHistName("mjj", variation.second), vmjj[i], i, weight);
         }
 
-        // No actual syst for full m4l but just for consistency
+        //! No actual syst for m4l but just for consistency
         SafeHistFill(jethistMap1D_, getHistName("Mass", variation.second), Mass, i, weight);
 
         if (vnJets[i] == 0)
@@ -1565,6 +1594,8 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
 
     // std::cout<<"does it go into lheWeights"<<std::endl;
     // std::cout << "lheWeights.size() " << lheWeights.size() << std::endl;
+
+    //! LHE reweighting, related to syst. unc. with PDF and QCD scales
     for (size_t i = 0; i < lheWeights.size(); i++) // expect 0 to 111 currently
     {
       SafeHistFill(weighthistMap1D_, getHistName("yield", variation.second), 1, i, lheWeights[i] / lheWeights[0] * weight);
@@ -1635,7 +1666,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   // std::cout<<run<<":"<<lumi<<":"<<evt<<std::endl;
   // std::cout << "variation.second: "<<variation.second;
 
-  //=====================A place where the on-shell selections have been applied and we fill the ntuple====================================================
+  //!=====================A place where the on-shell selections have been applied and we fill the ntuple ====================================================
 
   float tempNA = -99999.;
 
@@ -1669,12 +1700,14 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     SafeSetBranch(ftntp_, getBranchName("l2eta", variation.second), &l2eta_tmp);
     SafeSetBranch(ftntp_, getBranchName("l3eta", variation.second), &l3eta_tmp);
     SafeSetBranch(ftntp_, getBranchName("l4eta", variation.second), &l4eta_tmp);
+    SafeSetBranch(ftntp_, getBranchName("ZEtaProduct", variation.second), &etaproduct_tmp);
 
     SafeSetBranch(ftntp_, getBranchName("jetPt1", variation.second), &jpt1_tmp);
     SafeSetBranch(ftntp_, getBranchName("jetEta1", variation.second), &jeta1_tmp);
 
     SafeSetBranch(ftntp_, getBranchName("mjj", variation.second), &mjj);
     SafeSetBranch(ftntp_, getBranchName("dEtajj", variation.second), &dEtajj);
+    SafeSetBranch(ftntp_, getBranchName("dPhiZZ", variation.second), &dPhiZZ);
 
     if (isMC_)
     {
@@ -1682,6 +1715,32 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeight", variation.second), &L1prefiringWeight);
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightUp", variation.second), &L1prefiringWeightUp);
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightDn", variation.second), &L1prefiringWeightDn);
+      
+      //! fill jet syst variables
+      for (size_t i = 0; i < vjetEta.size(); i++){
+
+        SafeSetBranch(ftntp_, getBranchName("nJets"+jetSystNames[i], variation.second), &vnJets[i]);
+
+        if (vnJets[i] > 0){
+          jetPt0_syst_tmp[i] = vjetPt[i]->at(0);
+          jetEta0_syst_tmp[i] = vjetEta[i]->at(0);
+        }
+        
+        if (vnJets[i] > 1){
+          jetPt1_syst_tmp[i] = vjetPt[i]->at(1);
+          jetEta1_syst_tmp[i] = vjetEta[i]->at(1);
+          mjj_syst_tmp[i] = vmjj[i];
+          dEtajj_syst_tmp[i] = std::abs(vjetEta[i]->at(0) - vjetEta[i]->at(1));
+        }
+
+        SafeSetBranch(ftntp_, getBranchName("jetPt0"+jetSystNames[i], variation.second), &jetPt0_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("jetEta0"+jetSystNames[i], variation.second), &jetEta0_syst_tmp[i]);  
+        SafeSetBranch(ftntp_, getBranchName("jetPt1"+jetSystNames[i], variation.second), &jetPt1_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("jetEta1"+jetSystNames[i], variation.second), &jetEta1_syst_tmp[i]);  
+        SafeSetBranch(ftntp_, getBranchName("mjj"+jetSystNames[i], variation.second), &mjj_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("dEtajj"+jetSystNames[i], variation.second), &dEtajj_syst_tmp[i]);  
+        
+      }
     }
 
     ftntp_->Fill();

@@ -177,7 +177,7 @@ class SelectorDriver(object):
 
     def processDataset(self, dataset, file_path, chan):
         logging.info("Processing dataset %s" % dataset)
-        select = getattr(ROOT, self.selector_name)()
+        select = getattr(ROOT, self.selector_name)() #! selector initialized here
         select.SetInputList(self.inputs)
         self.addTNamed("name", dataset)
         # Only add for one channel
