@@ -127,6 +127,7 @@ protected:
     bool Passes4eExtraCut();
     bool Passes2e2mExtraCut(Long64_t entry);
     bool PassesZZjjSelection();
+    bool PassesZZjjBaselineSelection();
     bool PassesHZZSelection(bool nonPrompt);
     unsigned int GetLheWeightInfo();
     void SetVariables(Long64_t entry);
