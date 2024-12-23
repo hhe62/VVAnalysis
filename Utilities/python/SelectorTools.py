@@ -242,6 +242,10 @@ class SelectorDriver(object):
         return True
 
     def getFileNames(self, file_path):
+
+        #! Don't know why it was implemented this way, but xrootd and xrootd_user here are expected to be false even if path is correct
+        #! Major part that is working is the glob.glob(file_path) part
+
         xrootd = "/store" in file_path.split("/hdfs/")[0][:7]
         xrootd_user = "/store/user" in file_path.split("/hdfs/")[0][:12]
         if not (xrootd or os.path.isfile(file_path) or os.path.isdir(file_path.rsplit("/", 1)[0].rstrip("/*"))):

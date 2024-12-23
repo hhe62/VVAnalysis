@@ -238,7 +238,10 @@ def makeHistFile(args):
         sys.exit(0)
 
     fOut.Close()
+    
+    #! Can exit here if don't want to do final nonprompt background calc. (e.g. pure MCs)
     #sys.exit()
+    
     fOut = ROOT.TFile.Open(tmpFileName, "update")
     #pdb.set_trace()
     alldata = HistTools.makeCompositeHists(fOut,"AllData", 
