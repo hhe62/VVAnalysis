@@ -1232,8 +1232,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   float l2eta_tmp = l2Eta;
   float l3eta_tmp = l3Eta;
   float l4eta_tmp = l4Eta;
-  float etaproduct_tmp = Z1Eta * Z2Eta;
-
+  
   float jpt0_tmp;
   float jeta0_tmp;
 
@@ -1250,6 +1249,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
 
   float jpt1_tmp;
   float jeta1_tmp;
+  float jetaproduct_tmp; 
+  float zep1_tmp;
+  float zep2_tmp;
 
   //! One value for each shift (JES up, JER dn etc.)
   std::vector<float> jetPt0_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
@@ -1258,6 +1260,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   std::vector<float> jetEta1_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
   std::vector<float> mjj_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
   std::vector<float> dEtajj_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> jetaproduct_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> zep1_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
+  std::vector<float> zep2_syst_tmp = {tempNAv, tempNAv, tempNAv, tempNAv};
 
   //! mjj and dEtajj has default values already (but dEtajj=-1 is small although unphysical... unlike -9999), but need to assign values for temporary jetPt[1] and jetEta[1]
   //! => mjj and dEtajj NaN values are set here as well for consistency; dPhiZZ is always defined with the two Z's present.
@@ -1265,6 +1270,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   {
     jpt1_tmp = jetPt->at(1);
     jeta1_tmp = jetEta->at(1);
+    jetaproduct_tmp = jetEta->at(0)*jetEta->at(1);
+    zep1_tmp = Z1Eta - 0.5*(jetEta->at(0)+jetEta->at(1));
+    zep2_tmp = Z2Eta - 0.5*(jetEta->at(0)+jetEta->at(1));
   }
   else
   {
@@ -1272,6 +1280,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     jeta1_tmp = tempNAv;
     dEtajj = tempNAv;
     mjj = tempNAv;
+    jetaproduct_tmp = tempNAv;
+    zep1_tmp = tempNAv;
+    zep2_tmp = tempNAv;
   }
 
   std::vector<std::vector<float> *> vjetEta = {jetEta_jesUp, jetEta_jesDown, jetEta_jerUp, jetEta_jerDown};
@@ -1738,7 +1749,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
     SafeSetBranch(ftntp_, getBranchName("l2eta", variation.second), &l2eta_tmp);
     SafeSetBranch(ftntp_, getBranchName("l3eta", variation.second), &l3eta_tmp);
     SafeSetBranch(ftntp_, getBranchName("l4eta", variation.second), &l4eta_tmp);
-    SafeSetBranch(ftntp_, getBranchName("ZEtaProduct", variation.second), &etaproduct_tmp);
+    SafeSetBranch(ftntp_, getBranchName("jEtaProduct", variation.second), &jetaproduct_tmp);
+    SafeSetBranch(ftntp_, getBranchName("Zep1", variation.second), &zep1_tmp);
+    SafeSetBranch(ftntp_, getBranchName("Zep2", variation.second), &zep2_tmp);
 
     SafeSetBranch(ftntp_, getBranchName("jetPt1", variation.second), &jpt1_tmp);
     SafeSetBranch(ftntp_, getBranchName("jetEta1", variation.second), &jeta1_tmp);
@@ -1772,6 +1785,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
           jetEta1_syst_tmp[i] = vjetEta[i]->at(1);
           mjj_syst_tmp[i] = vmjj[i];
           dEtajj_syst_tmp[i] = std::abs(vjetEta[i]->at(0) - vjetEta[i]->at(1));
+          jetaproduct_syst_tmp[i] = vjetEta[i]->at(0) * vjetEta[i]->at(1);
+          zep1_syst_tmp[i] = Z1Eta- (vjetEta[i]->at(0) + vjetEta[i]->at(1));
+          zep2_syst_tmp[i] = Z2Eta- (vjetEta[i]->at(0) + vjetEta[i]->at(1));
         }
 
         SafeSetBranch(ftntp_, getBranchName("jetPt0" + jetSystNames[i], variation.second), &jetPt0_syst_tmp[i]);
@@ -1780,6 +1796,9 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
         SafeSetBranch(ftntp_, getBranchName("jetEta1" + jetSystNames[i], variation.second), &jetEta1_syst_tmp[i]);
         SafeSetBranch(ftntp_, getBranchName("mjj" + jetSystNames[i], variation.second), &mjj_syst_tmp[i]);
         SafeSetBranch(ftntp_, getBranchName("dEtajj" + jetSystNames[i], variation.second), &dEtajj_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("jEtaProduct" + jetSystNames[i], variation.second), &jetaproduct_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("Zep1" + jetSystNames[i], variation.second), &zep1_syst_tmp[i]);
+        SafeSetBranch(ftntp_, getBranchName("Zep2" + jetSystNames[i], variation.second), &zep2_syst_tmp[i]);
       }
     }
 
