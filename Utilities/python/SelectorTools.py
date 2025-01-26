@@ -224,7 +224,10 @@ class SelectorDriver(object):
         
         #Always create temp file for ntuple case regardless of whether multithread
         if not os.path.isdir("FilledNtuples"):
-            os.mkdir("FilledNtuples")
+            try:
+                os.mkdir("FilledNtuples")
+            except:
+                print("Failed to create FilledNtuples folder. Could be created by other thread at the same time.")
         
         OutputTools.writeOutputListItem(dataset_list, self.current_file)
         
