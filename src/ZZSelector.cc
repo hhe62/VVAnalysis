@@ -151,7 +151,7 @@ unsigned int ZZSelector::GetLheWeightInfo()
   std::string name_sub = name_;
   std::string split_delimiter = "Split";
   if (name_.find(split_delimiter) != std::string::npos){
-  name_sub = name_.substring(0,name_.find(split_delimiter))
+    name_sub = name_.substr(0,name_.find(split_delimiter));
   }
   if ((std::find(noLheWeights.begin(), noLheWeights.end(), name_sub) != noLheWeights.end()) || (isaTGC_))
     return 0;
