@@ -148,11 +148,16 @@ unsigned int ZZSelector::GetLheWeightInfo()
       //"wz-atgc_pt300"
   };
 
-  if ((std::find(noLheWeights.begin(), noLheWeights.end(), name_) != noLheWeights.end()) || (isaTGC_))
+  std::string name_sub = name_;
+  std::string split_delimiter = "Split";
+  if (name_.find(split_delimiter) != std::string::npos){
+  name_sub = name_.substring(0,name_.find(split_delimiter))
+  }
+  if ((std::find(noLheWeights.begin(), noLheWeights.end(), name_sub) != noLheWeights.end()) || (isaTGC_))
     return 0;
-  if (std::find(scaleAndPdfWeights.begin(), scaleAndPdfWeights.end(), name_) != scaleAndPdfWeights.end())
+  if (std::find(scaleAndPdfWeights.begin(), scaleAndPdfWeights.end(), name_sub) != scaleAndPdfWeights.end())
     return 2;
-  if (std::find(allLheWeights.begin(), allLheWeights.end(), name_) != allLheWeights.end())
+  if (std::find(allLheWeights.begin(), allLheWeights.end(), name_sub) != allLheWeights.end())
     return 3;
 
   if (isUL_L1check)
@@ -1293,7 +1298,7 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
 
   bool processFullRange = false;
   bool writeNtpFullRange = false;
-  bool fillLHEwgt = false;
+  bool fillLHEwgt = false; //Control hist filling, not ntuple filling
 
   //==============================================================================
   //   __       _ _             _  _   _
@@ -1766,6 +1771,29 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeight", variation.second), &L1prefiringWeight);
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightUp", variation.second), &L1prefiringWeightUp);
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightDn", variation.second), &L1prefiringWeightDn);
+
+    if (lheWeights.size()>0){
+    std::vector<float> LHE_wgts(lheWeights.size());
+    for (size_t i = 0; i < lheWeights.size(); i++){
+    LHE_wgts[i] = lheWeights[i] / lheWeights[0] * weight;
+    SafeSetBranch(ftntp_, getBranchName("LHE_weight"+std::to_string(i), variation.second), &LHE_wgts[i]);  
+    }
+    }
+    //! Usage these codes if want to fill QCD scales only
+
+    //  if (lheWeights.size()>=9){
+
+    //   std::vector<int> QCDscale_inds = {1,2,3,4,6,8};
+    //   std::vector<float> QCDscale_wgts = {0.,0.,0.,0.,0.,0.};
+    //   int QCDscale_count = 0;
+
+    //    for (int QCD_ind: QCDscale_inds) // expect 0 to 111 currently
+    //   {
+    //     QCDscale_wgts[QCDscale_count] = lheWeights[QCD_ind] / lheWeights[0] * weight;
+    //    SafeSetBranch(ftntp_, getBranchName("QCDscale_weight"+std::to_string(QCDscale_count), variation.second), &QCDscale_wgts[QCDscale_count]);
+    //    QCDscale_count =  QCDscale_count + 1;
+    //   }
+    //   }
 
       //! fill jet syst variables
       for (size_t i = 0; i < vjetEta.size(); i++)
