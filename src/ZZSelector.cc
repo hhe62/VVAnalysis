@@ -1300,6 +1300,12 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
   bool writeNtpFullRange = false;
   bool fillLHEwgt = false; //Control hist filling, not ntuple filling
 
+  size_t LHEVecSize = 1;
+  if (lheWeights.size()>0){
+    LHEVecSize = lheWeights.size();
+  }
+  std::vector<float> LHE_wgts(LHEVecSize,0.);
+
   //==============================================================================
   //   __       _ _             _  _   _
   //  / _|_   _| | |  _ __ ___ | || | | |  _ __ __ _ _ __   __ _  ___
@@ -1772,13 +1778,11 @@ void ZZSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::strin
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightUp", variation.second), &L1prefiringWeightUp);
       SafeSetBranch(ftntp_, getBranchName("L1prefiringWeightDn", variation.second), &L1prefiringWeightDn);
 
-    if (lheWeights.size()>0){
-    std::vector<float> LHE_wgts(lheWeights.size());
     for (size_t i = 0; i < lheWeights.size(); i++){
     LHE_wgts[i] = lheWeights[i] / lheWeights[0] * weight;
     SafeSetBranch(ftntp_, getBranchName("LHE_weight"+std::to_string(i), variation.second), &LHE_wgts[i]);  
     }
-    }
+    
     //! Usage these codes if want to fill QCD scales only
 
     //  if (lheWeights.size()>=9){
